@@ -1,14 +1,19 @@
-var PLAYER = {id: 0, x: 0, y: 0};
-var SIZE = 3;
 var ARENA = [];
 var OBSTACLES = [];
+var player;
 
-buildMap();
+function startGame(size) {
+   buildMap(size);
 
-ARENA[PLAYER.x][PLAYER.y] = 2;
-changeType(PLAYER.x, PLAYER.y, 2);
+   player = PLAYER.createPlayer();
 
-function buildMap() {
+   ARENA[player.getX()][player.getY()] = 2;
+   ARENA.alterAt(player.getX(), player.getY(), 2);
+}
+
+function buildMap(size) {
+   ARENA.SIZE = size;
+
     var body = document.body;
 
     var tbl = document.createElement("table");
@@ -16,13 +21,13 @@ function buildMap() {
     
     var tblBody = document.createElement("tbody");
     
-    for (var i = 0; i < SIZE; i++) {
+    for (var i = 0; i < ARENA.SIZE; i++) {
         ARENA[i] = [];
         OBSTACLES[i] = [];
         
         var row = document.createElement("tr");
         
-        for (var j = 0; j < SIZE; j++) {
+        for (var j = 0; j < ARENA.SIZE; j++) {
             ARENA[i][j] = 0;
     
             var cell = document.createElement("td");
@@ -39,38 +44,7 @@ function buildMap() {
     }
 }
 
-
-function movePlayer(deltaX, deltaY) {
-    if (PLAYER.x < 0 && PLAYER.y < 0) return;
-    if (isObstacled(PLAYER.x, PLAYER.y)) return;
-    if (isOnFire(PLAYER.x, PLAYER.y)) {
-        changeType(PLAYER.x, PLAYER.y, 0);
-        
-        PLAYER.x = -1;
-        PLAYER.y = -1;
-        
-        return;
-    }
-    
-    var tempX = PLAYER.x + deltaX;
-    var tempY = PLAYER.y + deltaY;
-    var oldX = PLAYER.x;
-    var oldY = PLAYER.y;
-    
-    if (tempX >= 0 && tempX < SIZE) {
-        PLAYER.x = tempX;
-    }
-    if (tempY >= 0 && tempY < SIZE) {
-        PLAYER.y = tempY;
-    }
-    
-    if (oldX != PLAYER.x || oldY != PLAYER.y) {
-        changeType(PLAYER.x, PLAYER.y, 2);
-        changeType(oldX, oldY, 0);
-    }
-}
-
-function changeType(x, y, type) {
+ARENA.alterAt = function alterAt(x, y, type) {
     ARENA[x][y] = type;
     
     var cell = document.getElementById('game_table').rows[y].cells[x];
@@ -96,6 +70,11 @@ function changeType(x, y, type) {
             style += 'bomb';
             
             break;
+
+        case 4:
+            style += 'fire';
+
+            break;
             
         default:
             style = '';
@@ -117,31 +96,31 @@ document.onkeyup = function onKeyUp(event) {
     switch(event.keyCode) {
         case 37:
             // left
-            movePlayer(-1, 0);
+            player.move(-1, 0);
             
             break;
             
         case 38:
             // up
-            movePlayer(0, -1);
+            player.move(0, -1);
             
             break;
             
         case 39:
             // right
-            movePlayer(1, 0);
+            player.move(1, 0);
             
             break;
             
         case 40:
             // down
-            movePlayer(0, 1);
+            player.move(0, 1);
             
             break;
             
         case 32:
             // space
-            dropBomb();
+            player.bomb();
             
             break;
     }
