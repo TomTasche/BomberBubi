@@ -1,3 +1,16 @@
+var APP = require('./server.js').app;
+var ARENA = require('./game.js').ARENA;
+var SOCKET = require('socket.io').listen(APP);
+ARENA.SOCKET = SOCKET;
+SOCKET.sockets.on('connection', function (socket) {
+   var player = PLAYER.createPlayer();
+
+   socket.emit('HELLO', {map: ARENA, size: ARENA.SIZE, player_id: player.getId()});
+   socket.on('TRIGGER', function onTrigger(data) {
+      player.move(data.deltaX, data.deltaY);
+   });
+});
+
 var PLAYER = (function initPlayer() {
     var PLAYER_PROTOTYPE = (function initPlayerPrototype() {
       var id = -1;
@@ -8,18 +21,18 @@ var PLAYER = (function initPlayer() {
 
       var bombInHand;
 
-	            var toggleFire = function toggleFire(x, y, state) {
-            ARENA.alterAt(x, y, state);
-            
-            if (x + 1 < ARENA.SIZE) ARENA.alterAt(x + 1, y, state);
-            if (x + 2 < ARENA.SIZE) ARENA.alterAt(x + 2, y, state);
-            if (x - 1 >= 0) ARENA.alterAt(x - 1, y, state);
-            if (x - 2 >= 0) ARENA.alterAt(x - 2, y, state);
-            if (y + 1 < ARENA.SIZE) ARENA.alterAt(x, y + 1, state);
-            if (y + 2 < ARENA.SIZE) ARENA.alterAt(x, y + 2, state);
-            if (y - 1 >= 0) ARENA.alterAt(x, y - 1, state);
-            if (y - 2 >= 0) ARENA.alterAt(x, y - 2, state);
-        };
+      var toggleFire = function toggleFire(x, y, state) {
+         ARENA[x][y].changeType(state);
+
+         if (x + 1 < ARENA.SIZE) ARENA[x + 1][y].changeType(state);
+         if (x + 2 < ARENA.SIZE) ARENA[x + 2][y].changeType(state);
+         if (x - 1 >= 0) ARENA[x - 1][y].changeType(state);
+         if (x - 2 >= 0) ARENA[x - 2][y].changeType(state);
+         if (y + 1 < ARENA.SIZE) ARENA[x][y + 1].changeType(state);
+         if (y + 2 < ARENA.SIZE) ARENA[x][y + 2].changeType(state);
+         if (y - 1 >= 0) ARENA[x][y - 1].changeType(state);
+         if (y - 2 >= 0) ARENA[x][y - 2].changeType(state);
+      };
 
       return {
          getX: function getX() {
@@ -46,26 +59,26 @@ var PLAYER = (function initPlayer() {
             id = newId;
          },
 
-        move: function move(deltaX, deltaY, verified) {
-           if (!verified) {
+         move: function move(deltaX, deltaY) {
             if (!alive) return;
 
              if (x < 0 && y < 0) return;
-             if (ARENA[x][y] != 2) {
+             if (ARENA[x][y].type != 2) {
                alive = false;
 
                return;
              }
-             if (ARENA[x + deltaX][y + deltaY] == 1 || ARENA[x + deltaX][y + deltaY] == 3) return;
-             if (ARENA[x + deltaX][y + deltaY] == 4) {
-                 ARENA.alterAt(x, y, 0);
+             if (ARENA[x + deltaX][y + deltaY] && ARENA[x + deltaX][y + deltaY].type == 1 || ARENA[x + deltaX][y + deltaY].type == 3) return;
+             if (ARENA[x + deltaX][y + deltaY] && ARENA[x + deltaX][y + deltaY].type == 4) {
+                 ARENA[x][y].changeType(0);
                  
                  x = -1;
                  y = -1;
+
+		alive = false;
                  
                  return;
              }
-           }
     
           var tempX = x + deltaX;
           var tempY = y + deltaY;
@@ -80,8 +93,8 @@ var PLAYER = (function initPlayer() {
           }
           
           if (oldX != x || oldY != y) {
-              ARENA.alterAt(x, y, 2);
-              ARENA.alterAt(oldX, oldY, 0);
+              ARENA[x][y].changeType(2);
+              ARENA[oldX][oldY].changeType(0);
 
               if (bombInHand) {
                  var bomb = bombInHand;
@@ -96,7 +109,7 @@ var PLAYER = (function initPlayer() {
                  }, 1000);
                 }, 2500);
 
-                ARENA.alterAt(bomb.x, bomb.y, 3);
+                ARENA[bomb.x][bomb.y].changeType(3);
 
                 bombInHand = null;
               }
@@ -116,21 +129,23 @@ var PLAYER = (function initPlayer() {
             var player = Object.create(PLAYER_PROTOTYPE);
             player.setId(PLAYERS.length);
             
-            if (ARENA[0][0] == 0) {
+            if (ARENA[0][0].type == 0) {
                 player.setX(0);
                 player.setY(0);
-            } else if (ARENA[ARENA.SIZE][0] == 0) {
+            } else if (ARENA[ARENA.SIZE - 1][0].type == 0) {
+                player.setX(ARENA.SIZE - 1);
+                player.setY(0);
+            } else if (ARENA[0][ARENA.SIZE - 1].type == 0) {
                 player.setX(0);
-                player.setY(ARENA.SIZE);
-            } else if (ARENA[0][ARENA.SIZE] == 0) {
-                player.setX(0);
-                player.setY(ARENA.SIZE);
-            } else if (ARENA[ARENA.SIZE][ARENA.SIZE] == 0) {
-                player.setX(ARENA.SIZE);
-                player.setY(ARENA.SIZE);
+                player.setY(ARENA.SIZE - 1);
+            } else if (ARENA[ARENA.SIZE - 1][ARENA.SIZE - 1].type == 0) {
+                player.setX(ARENA.SIZE - 1);
+                player.setY(ARENA.SIZE - 1);
             } else {
                 // TODO: random!
             }
+
+		ARENA[player.getX()][player.getY()].changeType(2);
             
             PLAYERS.pop(player);
 
@@ -138,3 +153,5 @@ var PLAYER = (function initPlayer() {
         }
     };
 })();
+
+this.PLAYER = PLAYER;

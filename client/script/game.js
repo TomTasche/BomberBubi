@@ -1,48 +1,75 @@
 var GAME = (function initGame() {
    var CELL = (function initCell() {
       return {
-         x: -1,
-         y: -1,
          type: -1,
 
          cell: null,
 
          changeType: function changeType(newType) {
-            type = newType;
+            this.type = newType;
 
-       var style = 'map_';
+            var style = 'map_';
        
-       switch(newType) {
-           case 0:
-               style += 'path';
+            switch(newType) {
+               case 0:
+                  style += 'path';
                
-               break;
+                  break;
                
-           case 1:
-               style += 'wall';
+               case 1:
+                  style += 'wall';
                
-               break;
+                  break;
                
-           case 2:
-               style += 'player';
+               case 2:
+                  style += 'player';
                
-               break;
+                  break;
                
-           case 3:
-               style += 'bomb';
+               case 3:
+                  style += 'bomb';
                
-               break;
+                  break;
 
-           case 4:
-               style += 'fire';
+               case 4:
+                  style += 'fire';
 
-               break;
+                  break;
                
-           default:
-               style = '';
+               default:
+                  style = '';
+            }
+
+            this.cell.className = style;
          }
+      };
+   })();
+   
+   var SOCKET = (function initSocket() {
+      var SOCKET = io.connect('http://127.0.0.1/');
+      SOCKET.on('HELLO', function onHello(data) {
+         PLAYER_ID = data.player_id;
 
-         cell.className = style;
+         buildArena(data.map, data.size);
+      });
+      SOCKET.on('UPDATE', function onUpdate(message) {
+         console.log(message);
+
+         var changes = message.changes;
+	console.log(changes.length);
+	    for (var i = 0; i < changes.length; i++) {
+		var change = changes[i];
+		console.log(change);
+
+	       ARENA[change.x][change.y].changeType(change.type);
+	    }
+      });
+
+      return {
+         sendMovement: function sendMovement(deltaX, deltaY) {
+            var message = {player_id: PLAYER_ID, deltaX: deltaX, deltaY: deltaY};
+
+            SOCKET.emit('TRIGGER', message);
          }
       };
    })();
@@ -50,106 +77,81 @@ var GAME = (function initGame() {
    var ARENA = [];
    var SOCKET;
    var PLAYER_ID;
-   var READY_DIV = document.getElementById('ready_div');
 
-   var openSocket = function openSocket() {
-      SOCKET = new WebSocket("ws://127.0.0.1/");
-      SOCKET.onmessage = onMessage;
-      SOCKET.onopen = onOpen;
-      SOCKET.onerror = onError;
-      SOCKET.onclose = onClose;
-   };
-   var onOpen = function onOpen(event) {
-      console.log(event);
-   };
-   var onMessage = function onMessage(message) {
-      console.log(message);
+   var buildArena = function buildArena(map, size) {
+	console.log(size);
+	console.log(map);
 
-      message = JSON.parse(message);
-
-      if (message.type == 0) {
-         buildMap(message.map);
-      }
-
-      PLAYER_ID = message.player_id;
-      READY_DIV.innerText = 'Ready!';
-
-      var changes = message.changes;
-      for (var change in changes) {
-         ARENA[change.x][change.y].changeType(change.type);
-      }
-   };
-   var onError = function onError(event) {
-      console.log(event);
-
-      READY_DIV.innerText = 'Meh. Error!';
-   };
-   var onClose = function onClose(event) {
-      console.log(event);
-
-      READY_DIV.innerText = 'Connection closed';
-   };
-
-   var buildArena = function buildArena(map) {
       ARENA = [];
 
-       var body = document.body;
+      var body = document.body;
 
-       var tbl = document.createElement("table");
-       tbl.id = 'game_table';
+      var tbl = document.createElement("table");
+      tbl.id = 'game_table';
+          
+      var tblBody = document.createElement("tbody");
        
-       var tblBody = document.createElement("tbody");
-       
-       for (var i = 0; i < map.SIZE; i++) {
-           ARENA[i] = [];
+      for (var i = 0; i < size; i++) {
+         ARENA[i] = [];
            
-           var row = document.createElement("tr");
-           
-           for (var j = 0; j < map.SIZE; j++) {
-               var tableCell = document.createElement("td");
-               tableCell.innerText = j + ',' + i;
-               row.appendChild(tableCell);
-               
-               tblBody.appendChild(row);
+         var row = document.createElement("tr");
+              
+         for (var j = 0; j < size; j++) {
+            var tableCell = document.createElement("td");
+            tableCell.innerText = j + ',' + i;
+            row.appendChild(tableCell);
+            
+            tblBody.appendChild(row);
        
-               tbl.appendChild(tblBody);
-               body.appendChild(tbl);
-               tbl.setAttribute("border", "1");
+            tbl.appendChild(tblBody);
+            body.appendChild(tbl);
+            tbl.setAttribute("border", "1");
 
-               var cell = Object.create(CELL);
-               cell.cell = tableCell;
-               cell.x = j;
-               cell.y = i;
-               cell.changeType(map[i][j]);
+            var cell = Object.create(CELL);
+            cell.cell = tableCell;
+            cell.changeType(map[i][j]);
 
-               ARENA[i][j] = cell;
-           }
-       }
-      };
-
-      
-      return {
-         sendKey: function sendKey(keycode) {
-            var message = {player_id: PLAYER_ID, keycode: keycode, timestamp: new Date().getTime()};
-
-            SOCKET.send(message);
+            ARENA[i][j] = cell;
          }
-      };
-   })();
+      }
+   };
+      
+   return {
+      sendMovement: function sendMovement(deltaX, deltaY) {
+         SOCKET.sendMovement(deltaX, deltaY);
+      }
+   };
+})();
 
 
 document.onkeyup = function onKeyUp(event) {
     switch(event.keyCode) {
         case 37:
             // left
+            GAME.sendMovement(-1, 0);
+
+            break;
+
         case 38:
             // up
+            GAME.sendMovement(0, -1);
+
+            break;
+
         case 39:
             // right
+            GAME.sendMovement(1, 0);
+
+            break;
+
         case 40:
             // down
+            GAME.sendMovement(0, 1);
+
+            break;
+
         case 32:
             // space
-            GAME.sendKey(event.keyCode);
+            GAME.sendMovement(0, 0);
     }
 };
