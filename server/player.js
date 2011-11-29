@@ -154,7 +154,17 @@ var PLAYER = (function initPlayer() {
                 player.setX(ARENA.SIZE - 1);
                 player.setY(ARENA.SIZE - 1);
             } else {
-                // TODO: random!
+               for (var i = 0; i < ARENA.SIZE; i++) {
+                  if (ARENA[i] && ARENA[i][0] && ARENA[i][0].type == 0) {
+                     player.setX(i);
+                     player.setY(0);
+                  }
+
+                  if (ARENA[0] && ARENA[0][i] && ARENA[0][i].type == 0) {
+                     player.setX(0);
+                     player.setY(i);
+                  }
+               }
             }
 
             ARENA[player.getX()][player.getY()].changeType(2);

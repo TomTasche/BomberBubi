@@ -109,7 +109,7 @@ var GAME = (function initGame() {
 
             var cell = Object.create(CELL);
             cell.cell = tableCell;
-            cell.changeType(map[j][i]);
+            cell.changeType(map[j][i].type);
 
             ARENA[i][j] = cell;
          }
