@@ -46,7 +46,7 @@ var GAME = (function initGame() {
    })();
    
    var SOCKET = (function initSocket() {
-      var SOCKET = io.connect('http://127.0.0.1/');
+      var SOCKET = io.connect('http://bomberbubi.herokuapp.com/');
       SOCKET.on('HELLO', function onHello(data) {
          PLAYER_ID = data.player_id;
 
