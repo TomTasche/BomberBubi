@@ -61,7 +61,7 @@ var GAME = (function initGame() {
 		var change = changes[i];
 		console.log(change);
 
-	       ARENA[change.x][change.y].changeType(change.type);
+	       ARENA[change.y][change.x].changeType(change.type);
 	    }
       });
 
@@ -109,7 +109,7 @@ var GAME = (function initGame() {
 
             var cell = Object.create(CELL);
             cell.cell = tableCell;
-            cell.changeType(map[i][j]);
+            cell.changeType(map[j][i]);
 
             ARENA[i][j] = cell;
          }

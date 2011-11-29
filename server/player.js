@@ -3,20 +3,17 @@ var ARENA = require('./game.js').ARENA;
 var SOCKET = require('socket.io').listen(APP);
 ARENA.SOCKET = SOCKET;
 SOCKET.sockets.on('connection', function (socket) {
-   var player = PLAYER.createPlayer();
+   var temp = PLAYER.createPlayer();
 
-   socket.emit('HELLO', {map: ARENA, size: ARENA.SIZE, player_id: player.getId()});
+   socket.emit('HELLO', {map: ARENA, size: ARENA.SIZE, player_id: temp.getId()});
    socket.on('TRIGGER', function onTrigger(data) {
+      var player = PLAYER.getPlayer(data.player_id);
       player.move(data.deltaX, data.deltaY);
    });
 });
 
 var PLAYER = (function initPlayer() {
     var PLAYER_PROTOTYPE = (function initPlayerPrototype() {
-      var id = -1;
-      var x = -1;
-      var y = -1;
-
       var alive = true;
 
       var bombInHand;
@@ -35,69 +32,84 @@ var PLAYER = (function initPlayer() {
       };
 
       return {
+         id: -1,
+         x: -1,
+         y: -1,
+
          getX: function getX() {
-            return x;
+            return this.x;
          },
 
          setX: function setX(newX) {
-            x = newX;
+            this.x = newX;
          },
 
          getY: function getY() {
-            return y;
+            return this.y;
          },
 
          setY: function setY(newY) {
-            y = newY;
+            this.y = newY;
          },
 
          getId: function getId() {
-            return id;
+            return this.id;
          },
 
          setId: function setId(newId) {
-            id = newId;
+            this.id = newId;
          },
 
          move: function move(deltaX, deltaY) {
             if (!alive) return;
 
-             if (x < 0 && y < 0) return;
-             if (ARENA[x][y].type != 2) {
+             if (this.x < 0 && this.y < 0) return;
+             if (ARENA[this.x][this.y].type != 2) {
                alive = false;
 
                return;
              }
-             if (ARENA[x + deltaX][y + deltaY] && ARENA[x + deltaX][y + deltaY].type == 1 || ARENA[x + deltaX][y + deltaY].type == 3) return;
-             if (ARENA[x + deltaX][y + deltaY] && ARENA[x + deltaX][y + deltaY].type == 4) {
-                 ARENA[x][y].changeType(0);
-                 
-                 x = -1;
-                 y = -1;
 
-		alive = false;
+            if (deltaX == 0 && deltaY == 0) {
+               this.bomb();
+
+               return;
+            }
+
+             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && (ARENA[this.x + deltaX][this.y + deltaY].type == 1 || ARENA[this.x + deltaX][this.y + deltaY].type == 3)) return;
+             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && ARENA[this.x + deltaX][this.y + deltaY].type == 4) {
+                 ARENA[this.x][this.y].changeType(0);
+                 
+                 this.x = -1;
+                 this.y = -1;
+
+                  alive = false;
                  
                  return;
              }
+             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && ARENA[this.x + deltaX][this.y + deltaY].type == 2) return;
     
-          var tempX = x + deltaX;
-          var tempY = y + deltaY;
-          var oldX = x;
-          var oldY = y;
+          var tempX = this.x + deltaX;
+          var tempY = this.y + deltaY;
+          var oldX = this.x;
+          var oldY = this.y;
 
           if (tempX >= 0 && tempX < ARENA.SIZE) {
-              x = tempX;
+              this.x = tempX;
           }
           if (tempY >= 0 && tempY < ARENA.SIZE) {
-              y = tempY;
+              this.y = tempY;
           }
           
-          if (oldX != x || oldY != y) {
-              ARENA[x][y].changeType(2);
+          if (oldX != this.x || oldY != this.y) {
+              ARENA[this.x][this.y].changeType(2);
               ARENA[oldX][oldY].changeType(0);
 
               if (bombInHand) {
-                 var bomb = bombInHand;
+                 console.log('bombInHand: ' + bombInHand);
+                 var bomb = Object.create(bombInHand);
+                 console.log('bomb: ' + bomb);
+
                 setTimeout(function fireBomb() {
                   console.log('BOOM, at: ' + bomb.x + ',' + bomb.y);
 
@@ -117,7 +129,7 @@ var PLAYER = (function initPlayer() {
         },
 
         bomb: function bomb() {
-            bombInHand = {x: x, y: y};
+            bombInHand = {x: this.x, y: this.y};
         }
       };
     })();
@@ -145,11 +157,15 @@ var PLAYER = (function initPlayer() {
                 // TODO: random!
             }
 
-		ARENA[player.getX()][player.getY()].changeType(2);
+            ARENA[player.getX()][player.getY()].changeType(2);
             
-            PLAYERS.pop(player);
+            PLAYERS.push(player);
 
             return player;
+        },
+
+        getPlayer: function getPlayer(index) {
+           return PLAYERS[index];
         }
     };
 })();

@@ -15,7 +15,7 @@ var CELL = (function initCell() {
 	})();
 
 
-   buildMap(27);
+   buildMap(3);
 
 function buildMap(size) {
     ARENA = [];
