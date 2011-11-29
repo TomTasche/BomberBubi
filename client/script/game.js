@@ -61,7 +61,8 @@ var GAME = (function initGame() {
 		var change = changes[i];
 		console.log(change);
 
-	       ARENA[change.y][change.x].changeType(change.type);
+	       // ARENA[change.y][change.x].changeType(change.type);
+	       ARENA[change.x][change.y].changeType(change.type);
 	    }
       });
 
