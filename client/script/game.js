@@ -47,6 +47,7 @@ var GAME = (function initGame() {
    
    var SOCKET = (function initSocket() {
       var SOCKET = io.connect('http://bomberbubi.herokuapp.com/');
+      // var SOCKET = io.connect('http://127.0.0.1/');
       SOCKET.on('HELLO', function onHello(data) {
          console.log(data);
 
@@ -57,14 +58,14 @@ var GAME = (function initGame() {
       SOCKET.on('UPDATE', function onUpdate(message) {
          console.log(message);
 
+         if (!ARENA) return;
+
          var changes = message.changes;
 	console.log(changes.length);
 	    for (var i = 0; i < changes.length; i++) {
 		var change = changes[i];
-		console.log(change);
 
-	       // ARENA[change.y][change.x].changeType(change.type);
-	       ARENA[change.x][change.y].changeType(change.type);
+	       ARENA[change.y][change.x].changeType(change.type);
 	    }
       });
 
@@ -77,7 +78,7 @@ var GAME = (function initGame() {
       };
    })();
 
-   var ARENA = [];
+   var ARENA;
    var SOCKET;
    var PLAYER_ID;
 
