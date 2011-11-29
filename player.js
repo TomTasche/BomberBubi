@@ -9,6 +9,8 @@ SOCKET.configure(function () {
 SOCKET.sockets.on('connection', function (socket) {
    var temp = PLAYER.createPlayer();
 
+   setTimeout(2000);
+
    socket.emit('HELLO', {map: ARENA, size: ARENA.SIZE, player_id: temp.getId()});
    socket.on('TRIGGER', function onTrigger(data) {
       var player = PLAYER.getPlayer(data.player_id);

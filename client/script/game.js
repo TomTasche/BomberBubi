@@ -48,6 +48,8 @@ var GAME = (function initGame() {
    var SOCKET = (function initSocket() {
       var SOCKET = io.connect('http://bomberbubi.herokuapp.com/');
       SOCKET.on('HELLO', function onHello(data) {
+         console.log(data);
+
          PLAYER_ID = data.player_id;
 
          buildArena(data.map, data.size);
