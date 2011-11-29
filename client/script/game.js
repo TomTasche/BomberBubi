@@ -98,7 +98,6 @@ var GAME = (function initGame() {
               
          for (var j = 0; j < size; j++) {
             var tableCell = document.createElement("td");
-            tableCell.innerText = j + ',' + i;
             row.appendChild(tableCell);
             
             tblBody.appendChild(row);
