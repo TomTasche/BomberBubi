@@ -2,8 +2,9 @@ var APP = require('./server.js').app;
 var ARENA = require('./game.js').ARENA;
 var SOCKET = require('socket.io').listen(APP);
 ARENA.SOCKET = SOCKET;
-SOCKET.configure(function() {
-   SOCKET.set("transports", ["xhr-polling", "flashsocket", "json-polling"]);
+SOCKET.configure(function () { 
+     SOCKET.set("transports", ["xhr-polling"]);
+     SOCKET.set("polling duration", 10);
 });
 SOCKET.sockets.on('connection', function (socket) {
    var temp = PLAYER.createPlayer();
