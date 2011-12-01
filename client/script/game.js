@@ -46,7 +46,7 @@ var GAME = (function initGame() {
    })();
    
    var SOCKET = (function initSocket() {
-      var SOCKET = io.connect('http://bomberbubi.herokuapp.com/');
+      var SOCKET = io.connect('http://184.73.187.157/');
       // var SOCKET = io.connect('http://127.0.0.1/');
       SOCKET.on('HELLO', function onHello(data) {
          console.log(data);
