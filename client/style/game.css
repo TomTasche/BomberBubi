@@ -1,34 +1,34 @@
 .map_wall {
-    background-color: grey;
+   background-color: grey;
 
-    width: 50px;
-    height: 50px;
+   width: 50px;
+   height: 50px;
 }
 
 .map_player {
-    background-color: blue;
+   background-color: blue;
 
-    width: 50px;
-    height: 50px;
+   width: 50px;
+   height: 50px;
 }
 
 .map_bomb {
-    background-color: black;
+   background-color: black;
 
-    width: 50px;
-    height: 50px;
+   width: 50px;
+   height: 50px;
 }
 
 .map_path {
-    background-color: white;
+   background-color: white;
 
-    width: 50px;
-    height: 50px;
+   width: 50px;
+   height: 50px;
 }
 
 .map_fire {
-    background-color: red;
+   background-color: red;
 
-    width: 50px;
-    height: 50px;
+   width: 50px;
+   height: 50px;
 }

@@ -9,33 +9,33 @@ var GAME = (function initGame() {
             this.type = newType;
 
             var style = 'map_';
-       
+
             switch(newType) {
                case 0:
                   style += 'path';
-               
-                  break;
-               
+
+               break;
+
                case 1:
                   style += 'wall';
-               
-                  break;
-               
+
+               break;
+
                case 2:
                   style += 'player';
-               
-                  break;
-               
+
+               break;
+
                case 3:
                   style += 'bomb';
-               
-                  break;
+
+               break;
 
                case 4:
                   style += 'fire';
 
-                  break;
-               
+               break;
+
                default:
                   style = '';
             }
@@ -44,7 +44,7 @@ var GAME = (function initGame() {
          }
       };
    })();
-   
+
    var SOCKET = (function initSocket() {
       var SOCKET = io.connect('http://184.73.187.157/');
       // var SOCKET = io.connect('http://127.0.0.1/');
@@ -61,12 +61,12 @@ var GAME = (function initGame() {
          if (!ARENA) return;
 
          var changes = message.changes;
-	console.log(changes.length);
-	    for (var i = 0; i < changes.length; i++) {
-		var change = changes[i];
+         console.log(changes.length);
+         for (var i = 0; i < changes.length; i++) {
+            var change = changes[i];
 
-	       ARENA[change.y][change.x].changeType(change.type);
-	    }
+            ARENA[change.y][change.x].changeType(change.type);
+         }
       });
 
       return {
@@ -83,8 +83,8 @@ var GAME = (function initGame() {
    var PLAYER_ID;
 
    var buildArena = function buildArena(map, size) {
-	console.log(size);
-	console.log(map);
+      console.log(size);
+      console.log(map);
 
       ARENA = [];
 
@@ -92,20 +92,20 @@ var GAME = (function initGame() {
 
       var tbl = document.createElement("table");
       tbl.id = 'game_table';
-          
+
       var tblBody = document.createElement("tbody");
-       
+
       for (var i = 0; i < size; i++) {
          ARENA[i] = [];
-           
+
          var row = document.createElement("tr");
-              
+
          for (var j = 0; j < size; j++) {
             var tableCell = document.createElement("td");
             row.appendChild(tableCell);
-            
+
             tblBody.appendChild(row);
-       
+
             tbl.appendChild(tblBody);
             body.appendChild(tbl);
             tbl.setAttribute("border", "1");
@@ -118,7 +118,7 @@ var GAME = (function initGame() {
          }
       }
    };
-      
+
    return {
       sendMovement: function sendMovement(deltaX, deltaY) {
          SOCKET.sendMovement(deltaX, deltaY);
@@ -128,33 +128,33 @@ var GAME = (function initGame() {
 
 
 document.onkeyup = function onKeyUp(event) {
-    switch(event.keyCode) {
-        case 37:
-            // left
-            GAME.sendMovement(-1, 0);
+   switch(event.keyCode) {
+      case 37:
+         // left
+         GAME.sendMovement(-1, 0);
 
-            break;
+      break;
 
-        case 38:
-            // up
-            GAME.sendMovement(0, -1);
+      case 38:
+         // up
+         GAME.sendMovement(0, -1);
 
-            break;
+      break;
 
-        case 39:
-            // right
-            GAME.sendMovement(1, 0);
+      case 39:
+         // right
+         GAME.sendMovement(1, 0);
 
-            break;
+      break;
 
-        case 40:
-            // down
-            GAME.sendMovement(0, 1);
+      case 40:
+         // down
+         GAME.sendMovement(0, 1);
 
-            break;
+      break;
 
-        case 32:
-            // space
-            GAME.sendMovement(0, 0);
-    }
+      case 32:
+         // space
+         GAME.sendMovement(0, 0);
+   }
 };
