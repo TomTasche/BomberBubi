@@ -6,10 +6,14 @@ var CELL = (function initCell() {
       y: -1,
       type: -1,
 
-      changeType: function changeType(type) {
+      changeType: function changeType(type, enqueue) {
          this.type = type;
 
-         ARENA.SOCKET.sockets.emit('UPDATE', {changes: [{x: this.x, y: this.y, type: this.type}]});
+         if (enqueue) return this;
+
+         var message = {changes: [{x: this.x, y: this.y, type: this.type}]};
+         message = ARENA.JSONH.stringify(message);
+         ARENA.SOCKET.sockets.emit('UPDATE', message);
       }
    };
 })();

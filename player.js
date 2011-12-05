@@ -1,11 +1,9 @@
 var APP = require('./server.js').app;
 var ARENA = require('./game.js').ARENA;
 var SOCKET = require('socket.io').listen(APP);
+var JSONH = require('./JSONH/js/jsonh.js');
 ARENA.SOCKET = SOCKET;
-SOCKET.configure(function () { 
-   SOCKET.set("transports", ["xhr-polling"]);
-   SOCKET.set("polling duration", 10);
-});
+ARENA.JSONH = JSONH;
 SOCKET.sockets.on('connection', function (socket) {
    var temp = PLAYER.createPlayer();
 
@@ -23,16 +21,21 @@ var PLAYER = (function initPlayer() {
       var bombInHand;
 
       var toggleFire = function toggleFire(x, y, state) {
-         ARENA[x][y].changeType(state);
+         var changes = [];
+         
+         changes.push(ARENA[x][y].changeType(state, true));
 
-         if (x + 1 < ARENA.SIZE) ARENA[x + 1][y].changeType(state);
-         if (x + 2 < ARENA.SIZE) ARENA[x + 2][y].changeType(state);
-         if (x - 1 >= 0) ARENA[x - 1][y].changeType(state);
-         if (x - 2 >= 0) ARENA[x - 2][y].changeType(state);
-         if (y + 1 < ARENA.SIZE) ARENA[x][y + 1].changeType(state);
-         if (y + 2 < ARENA.SIZE) ARENA[x][y + 2].changeType(state);
-         if (y - 1 >= 0) ARENA[x][y - 1].changeType(state);
-         if (y - 2 >= 0) ARENA[x][y - 2].changeType(state);
+         if (x + 1 < ARENA.SIZE) changes.push(ARENA[x + 1][y].changeType(state, true));
+         if (x + 2 < ARENA.SIZE) changes.push(ARENA[x + 2][y].changeType(state, true));
+         if (x - 1 >= 0) changes.push(ARENA[x - 1][y].changeType(state, true));
+         if (x - 2 >= 0) changes.push(ARENA[x - 2][y].changeType(state, true));
+         if (y + 1 < ARENA.SIZE) changes.push(ARENA[x][y + 1].changeType(state, true));
+         if (y + 2 < ARENA.SIZE) changes.push(ARENA[x][y + 2].changeType(state, true));
+         if (y - 1 >= 0) changes.push(ARENA[x][y - 1].changeType(state, true));
+         if (y - 2 >= 0) changes.push(ARENA[x][y - 2].changeType(state, true));
+
+         changes = JSONH.stringify(changes);
+         ARENA.SOCKET.sockets.emit('UPDATE', {changes: changes});
       };
 
       return {
@@ -80,9 +83,11 @@ var PLAYER = (function initPlayer() {
                return;
             }
 
+            var changes = [];
+
             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && (ARENA[this.x + deltaX][this.y + deltaY].type == 1 || ARENA[this.x + deltaX][this.y + deltaY].type == 3)) return;
             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && ARENA[this.x + deltaX][this.y + deltaY].type == 4) {
-               ARENA[this.x][this.y].changeType(0);
+               changes.push(ARENA[this.x][this.y].changeType(0, true));
 
                this.x = -1;
                this.y = -1;
@@ -106,8 +111,8 @@ var PLAYER = (function initPlayer() {
             }
 
             if (oldX != this.x || oldY != this.y) {
-               ARENA[this.x][this.y].changeType(2);
-               ARENA[oldX][oldY].changeType(0);
+               changes.push(ARENA[this.x][this.y].changeType(2, true));
+               changes.push(ARENA[oldX][oldY].changeType(0, true));
 
                if (bombInHand) {
                   console.log('bombInHand: ' + bombInHand);
@@ -125,11 +130,14 @@ var PLAYER = (function initPlayer() {
                      }, 1000);
                   }, 2500);
 
-                  ARENA[bomb.x][bomb.y].changeType(3);
+                  changes.push(ARENA[bomb.x][bomb.y].changeType(3, true));
 
                   bombInHand = null;
                }
             }
+
+            changes = JSONH.stringify(changes);
+            ARENA.SOCKET.sockets.emit('UPDATE', {changes: changes});
          },
 
          bomb: function bomb() {

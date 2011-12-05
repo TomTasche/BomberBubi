@@ -1,7 +1,7 @@
 var app = require('http').createServer(handler)
 , fs = require('fs'), url = require ("url");
 
-var PORT = process.env.PORT || 80;
+var PORT = process.env.PORT || 1337;
 console.log(PORT);
 app.listen(PORT);
 
