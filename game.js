@@ -12,7 +12,7 @@ var CELL = (function initCell() {
          if (enqueue) return this;
 
          var message = {changes: [{x: this.x, y: this.y, type: this.type}]};
-         message = ARENA.JSONH.stringify(message);
+         // message.changes = ARENA.JSONH.stringify(message.changes);
          ARENA.SOCKET.sockets.emit('UPDATE', message);
       }
    };

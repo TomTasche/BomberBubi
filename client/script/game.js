@@ -49,7 +49,8 @@ var GAME = (function initGame() {
       var SOCKET = io.connect('http://184.73.187.157/');
       // var SOCKET = io.connect('http://127.0.0.1/');
       SOCKET.on('HELLO', function onHello(data) {
-         data = JSONH.parse(data);
+         console.log(data);
+         // data = JSONH.parse(data);
          console.log(data);
 
          PLAYER_ID = data.player_id;
@@ -57,10 +58,11 @@ var GAME = (function initGame() {
          buildArena(data.map, data.size);
       });
       SOCKET.on('UPDATE', function onUpdate(message) {
-         message = JSONH.parse(message);
-         console.log(message);
-
          if (!ARENA) return;
+         
+         console.log(message);
+         // message = JSONH.parse(message);
+         console.log(message);
 
          var changes = message.changes;
          console.log(changes.length);
@@ -74,7 +76,7 @@ var GAME = (function initGame() {
       return {
          sendMovement: function sendMovement(deltaX, deltaY) {
             var message = {player_id: PLAYER_ID, deltaX: deltaX, deltaY: deltaY};
-            message = JSONH.stringify(message);
+            // message = JSONH.stringify(message);
 
             SOCKET.emit('TRIGGER', message);
          }

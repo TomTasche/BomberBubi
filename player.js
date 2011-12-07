@@ -4,10 +4,17 @@ var SOCKET = require('socket.io').listen(APP);
 var JSONH = require('./JSONH/js/jsonh.js');
 ARENA.SOCKET = SOCKET;
 ARENA.JSONH = JSONH;
+//SOCKET.configure(function () { 
+//      SOCKET.set("transports", ["xhr-polling"]);
+//      SOCKET.set("polling duration", 10);
+//});
 SOCKET.sockets.on('connection', function (socket) {
    var temp = PLAYER.createPlayer();
 
-   socket.emit('HELLO', {map: ARENA, size: ARENA.SIZE, player_id: temp.getId()});
+
+   var map = {map: ARENA, size: ARENA.SIZE, player_id: temp.getId()};
+   // map.map = JSONH.stringify(map.map);
+   socket.emit('HELLO', map);
    socket.on('TRIGGER', function onTrigger(data) {
       var player = PLAYER.getPlayer(data.player_id);
       player.move(data.deltaX, data.deltaY);
@@ -34,7 +41,7 @@ var PLAYER = (function initPlayer() {
          if (y - 1 >= 0) changes.push(ARENA[x][y - 1].changeType(state, true));
          if (y - 2 >= 0) changes.push(ARENA[x][y - 2].changeType(state, true));
 
-         changes = JSONH.stringify(changes);
+         // changes = JSONH.stringify(changes);
          ARENA.SOCKET.sockets.emit('UPDATE', {changes: changes});
       };
 
@@ -83,11 +90,9 @@ var PLAYER = (function initPlayer() {
                return;
             }
 
-            var changes = [];
-
             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && (ARENA[this.x + deltaX][this.y + deltaY].type == 1 || ARENA[this.x + deltaX][this.y + deltaY].type == 3)) return;
             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && ARENA[this.x + deltaX][this.y + deltaY].type == 4) {
-               changes.push(ARENA[this.x][this.y].changeType(0, true));
+               ARENA[this.x][this.y].changeType(0);
 
                this.x = -1;
                this.y = -1;
@@ -98,6 +103,7 @@ var PLAYER = (function initPlayer() {
             }
             if (ARENA[this.x + deltaX] && ARENA[this.x + deltaX][this.y + deltaY] && ARENA[this.x + deltaX][this.y + deltaY].type == 2) return;
 
+            var changes = [];
             var tempX = this.x + deltaX;
             var tempY = this.y + deltaY;
             var oldX = this.x;
@@ -136,7 +142,7 @@ var PLAYER = (function initPlayer() {
                }
             }
 
-            changes = JSONH.stringify(changes);
+            // changes = JSONH.stringify(changes);
             ARENA.SOCKET.sockets.emit('UPDATE', {changes: changes});
          },
 
