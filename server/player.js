@@ -3,8 +3,6 @@ var SOCKET = require('./socket.js');
 
 var PLAYER = (function initPlayer() {
    var PLAYER_PROTOTYPE = (function initPlayerPrototype() {
-      var alive = true;
-
       var bombInHand;
 
       var toggleFire = function toggleFire(x, y, state) {
@@ -42,12 +40,13 @@ var PLAYER = (function initPlayer() {
       };
 
       return {
+         alive: true,
          id: -1,
          x: -1,
          y: -1,
 
          move: function move(deltaX, deltaY) {
-            if (!alive) {
+            if (!this.alive) {
                return;
             }
 
@@ -55,7 +54,10 @@ var PLAYER = (function initPlayer() {
                return;
             }
             if (ARENA[this.x][this.y].type != 2) {
-               alive = false;
+               this.x = -1;
+               this.y = -1;
+
+               this.alive = false;
 
                return;
             }
@@ -75,7 +77,7 @@ var PLAYER = (function initPlayer() {
                this.x = -1;
                this.y = -1;
 
-               alive = false;
+               this.alive = false;
 
                return;
             }
@@ -101,17 +103,12 @@ var PLAYER = (function initPlayer() {
                changes.push(ARENA[oldX][oldY].changeType(0, true));
 
                if (bombInHand) {
-                  console.log('bombInHand: ' + bombInHand);
                   var bomb = Object.create(bombInHand);
-                  console.log('bomb: ' + bomb);
 
                   setTimeout(function fireBomb() {
-                     console.log('BOOM, at: ' + bomb.x + ',' + bomb.y);
-
                      toggleFire(bomb.x, bomb.y, 4);
 
                      setTimeout(function clearFire() {
-                        console.log('no more BOOM');
                         toggleFire(bomb.x, bomb.y, 0);
                      }, 1000);
                   }, 2500);
@@ -185,7 +182,17 @@ var PLAYER = (function initPlayer() {
 SOCKET.on('connection', function (socket) {
    var temp = PLAYER.createPlayer();
 
-   var map = {map: ARENA, size: ARENA.SIZE, player_id: temp.id};
+   var arena = [];
+   for (var i = 0; i < ARENA.SIZE; i++) {
+      for (var j = 0; j < ARENA.SIZE; j++) {
+         var cell = ARENA[i][j];
+         if (cell.type !== 0) {
+            arena.push(cell);
+         }
+      }
+   }
+
+   var map = {changes: arena, size: ARENA.SIZE, player_id: temp.id};
    // map.map = JSONH.stringify(map.map);
    socket.emit('HELLO', map);
    socket.on('TRIGGER', function onTrigger(data) {

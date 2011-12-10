@@ -9,7 +9,7 @@ var CELL = CELL || (function initCell() {
 
       changeType: function changeType(type, enqueue) {
          this.type = type;
-
+         
          if (enqueue) {
             return this;
          } else {

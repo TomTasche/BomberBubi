@@ -1,11 +1,17 @@
-var SERVER = SERVER || require('./server.js');
-var SOCKETIO = SOCKETIO || require('socket.io').listen(SERVER);
+// var SERVER = SERVER || require('./server.js');
+var SOCKETIO = SOCKETIO || require('socket.io').listen(1337);
+SOCKETIO.set('transports', [
+       // 'websocket',
+       'htmlfile', 'xhr-polling', 'jsonp-polling'
+]);
+SOCKETIO.enable('browser client minification');
+SOCKETIO.enable('browser client etag');
 
 var broadcast = function broadcast(type, data) {
-   SOCKETIO.sockets.emit(type, data);
+   SOCKETIO.of('/sockets').emit(type, data);
 };
 var on = function on(type, callback) {
-   SOCKETIO.sockets.on(type, callback);
+   SOCKETIO.of('/sockets').on(type, callback);
 };
 
 module.exports = {

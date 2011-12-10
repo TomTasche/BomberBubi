@@ -8,6 +8,8 @@ HTTP = HTTP.createServer(function onRequest(req, res) {
       uri = '/game.html';
    }
 
+   console.log(uri);
+
    FS.readFile(__dirname + '/../client' + uri,
                function (err, data) {
                   if (err) {
@@ -19,8 +21,8 @@ HTTP = HTTP.createServer(function onRequest(req, res) {
                   res.end(data);
                });
 });
-HTTP.listen(1337);
+HTTP.listen(80);
 
-console.log('server running at 1337');
+console.log('server running at 80');
 
 module.exports = HTTP;

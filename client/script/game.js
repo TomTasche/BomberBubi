@@ -46,37 +46,34 @@ var GAME = (function initGame() {
    })();
 
    var SOCKET = (function initSocket() {
-      var SOCKET = io.connect('http://184.73.187.157/');
-      // var SOCKET = io.connect('http://127.0.0.1/');
-      SOCKET.on('HELLO', function onHello(data) {
-         console.log(data);
-         // data = JSONH.parse(data);
-         console.log(data);
-
-         PLAYER_ID = data.player_id;
-
-         buildArena(data.map, data.size);
-      });
-      SOCKET.on('UPDATE', function onUpdate(message) {
-         if (!ARENA) return;
-         
-         console.log(message);
-         // message = JSONH.parse(message);
-         console.log(message);
+      var onUpdate = function onUpdate(message) {
+         if (!ARENA) {
+            return;
+         }
 
          var changes = message.changes;
-         console.log(changes.length);
          for (var i = 0; i < changes.length; i++) {
             var change = changes[i];
 
             ARENA[change.y][change.x].changeType(change.type);
          }
+      };
+
+      var SOCKET = io.connect('http://184.73.187.157/sockets');
+      SOCKET.on('HELLO', function onHello(data) {
+         PLAYER_ID = data.player_id;
+
+         buildArena(data.size);
+
+         onUpdate(data);
       });
+      SOCKET.on('UPDATE', onUpdate);
 
       return {
          sendMovement: function sendMovement(deltaX, deltaY) {
+            console.log(PLAYER_ID);
+
             var message = {player_id: PLAYER_ID, deltaX: deltaX, deltaY: deltaY};
-            // message = JSONH.stringify(message);
 
             SOCKET.emit('TRIGGER', message);
          }
@@ -87,10 +84,7 @@ var GAME = (function initGame() {
    var SOCKET;
    var PLAYER_ID;
 
-   var buildArena = function buildArena(map, size) {
-      console.log(size);
-      console.log(map);
-
+   var buildArena = function buildArena(size) {
       ARENA = [];
 
       var body = document.body;
@@ -117,7 +111,7 @@ var GAME = (function initGame() {
 
             var cell = Object.create(CELL);
             cell.cell = tableCell;
-            cell.changeType(map[j][i].type);
+            cell.changeType(0);
 
             ARENA[i][j] = cell;
          }
