@@ -119,7 +119,6 @@ var PLAYER = (function initPlayer() {
                }
             }
 
-            // changes = JSONH.stringify(changes);
             SOCKET.broadcast('UPDATE', {changes: changes});
          },
 
@@ -193,7 +192,6 @@ SOCKET.on('connection', function (socket) {
    }
 
    var map = {changes: arena, size: ARENA.SIZE, player_id: temp.id};
-   // map.map = JSONH.stringify(map.map);
    socket.emit('HELLO', map);
    socket.on('TRIGGER', function onTrigger(data) {
       var player = PLAYER.getPlayer(data.player_id);
