@@ -6,6 +6,7 @@ var PLAYER = (function initPlayer() {
       var bombInHand;
 
       var toggleFire = function toggleFire(x, y, state) {
+         var measure = new Date().getMilliseconds();
          var changes = [];
          
          changes.push(ARENA[x][y].changeType(state, true));
@@ -37,6 +38,8 @@ var PLAYER = (function initPlayer() {
 
          // changes = JSONH.stringify(changes);
          SOCKET.broadcast('UPDATE', {changes: changes});
+
+         console.log('toggling fire took: ' + (new Date().getMilliseconds() - measure));
       };
 
       return {
@@ -46,6 +49,8 @@ var PLAYER = (function initPlayer() {
          y: -1,
 
          move: function move(deltaX, deltaY) {
+            var measure = new Date().getMilliseconds();
+
             if (!this.alive) {
                return;
             }
@@ -120,6 +125,9 @@ var PLAYER = (function initPlayer() {
             }
 
             SOCKET.broadcast('UPDATE', {changes: changes});
+
+
+            console.log('moving took: ' + (new Date().getMilliseconds() - measure));
          },
 
          bomb: function bomb() {

@@ -1,11 +1,13 @@
 // var SERVER = SERVER || require('./server.js');
 var SOCKETIO = SOCKETIO || require('socket.io').listen(1337);
 SOCKETIO.set('transports', [
-       // 'websocket',
+       'websocket',
        'htmlfile', 'xhr-polling', 'jsonp-polling'
 ]);
 SOCKETIO.enable('browser client minification');
 SOCKETIO.enable('browser client etag');
+SOCKETIO.enable('browser client cache');
+// SOCKETIO.set('log level', 1);
 
 var broadcast = function broadcast(type, data) {
    SOCKETIO.of('/sockets').emit(type, data);
