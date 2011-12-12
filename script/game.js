@@ -158,3 +158,12 @@ var onKeyUp = function onKeyUp(event) {
    }
 };
 document.addEventListener("keyup", onKeyUp, false);
+
+document.onkeydown = function(e) {
+   //Prevent scrolling
+   if(e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
+      e.preventDefault();
+      return false;
+   }
+   return true;
+};
