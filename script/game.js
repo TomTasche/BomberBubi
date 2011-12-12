@@ -126,8 +126,8 @@ var GAME = (function initGame() {
    };
 })();
 
-
-document.onkeyup = function onKeyUp(event) {
+document.addEventListener("keyup", onKeyUp, false);
+var onKeyUp = function onKeyUp(event) {
    switch(event.keyCode) {
       case 37:
          // left
