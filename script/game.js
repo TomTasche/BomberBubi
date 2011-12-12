@@ -87,7 +87,7 @@ var GAME = (function initGame() {
    var buildArena = function buildArena(size) {
       ARENA = [];
 
-      var body = document.body;
+      var root = document.getElementById('game');
 
       var tbl = document.createElement("table");
       tbl.id = 'game_table';
@@ -106,7 +106,6 @@ var GAME = (function initGame() {
             tblBody.appendChild(row);
 
             tbl.appendChild(tblBody);
-            body.appendChild(tbl);
             tbl.setAttribute("border", "1");
 
             var cell = Object.create(CELL);
@@ -116,6 +115,8 @@ var GAME = (function initGame() {
             ARENA[i][j] = cell;
          }
       }
+
+      root.appendChild(tbl);
    };
 
    return {
