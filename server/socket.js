@@ -7,6 +7,8 @@ SOCKETIO.set('transports', [
 SOCKETIO.enable('browser client minification');
 SOCKETIO.enable('browser client etag');
 SOCKETIO.enable('browser client cache');
+SOCKETIO.enable('browser client gzip');
+
 // SOCKETIO.set('log level', 1);
 
 var broadcast = function broadcast(type, data) {

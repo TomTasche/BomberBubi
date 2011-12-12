@@ -1,46 +1,10 @@
 var ARENA = require('./game.js');
 var SOCKET = require('./socket.js');
+var PLAYERS = [];
 
 var PLAYER = (function initPlayer() {
    var PLAYER_PROTOTYPE = (function initPlayerPrototype() {
       var bombInHand;
-
-      var toggleFire = function toggleFire(x, y, state) {
-         var measure = new Date().getMilliseconds();
-         var changes = [];
-         
-         changes.push(ARENA[x][y].changeType(state, true));
-
-         if (x + 1 < ARENA.SIZE) {
-            changes.push(ARENA[x + 1][y].changeType(state, true));
-         }
-         if (x + 2 < ARENA.SIZE) {
-            changes.push(ARENA[x + 2][y].changeType(state, true));
-         }
-         if (x - 1 >= 0) {
-            changes.push(ARENA[x - 1][y].changeType(state, true));
-         }
-         if (x - 2 >= 0) {
-            changes.push(ARENA[x - 2][y].changeType(state, true));
-         }
-         if (y + 1 < ARENA.SIZE) {
-            changes.push(ARENA[x][y + 1].changeType(state, true));
-         }
-         if (y + 2 < ARENA.SIZE) {
-            changes.push(ARENA[x][y + 2].changeType(state, true));
-         }
-         if (y - 1 >= 0) {
-            changes.push(ARENA[x][y - 1].changeType(state, true));
-         }
-         if (y - 2 >= 0) {
-            changes.push(ARENA[x][y - 2].changeType(state, true));
-         }
-
-         // changes = JSONH.stringify(changes);
-         SOCKET.broadcast('UPDATE', {changes: changes});
-
-         console.log('toggling fire took: ' + (new Date().getMilliseconds() - measure));
-      };
 
       return {
          alive: true,
@@ -49,8 +13,6 @@ var PLAYER = (function initPlayer() {
          y: -1,
 
          move: function move(deltaX, deltaY) {
-            var measure = new Date().getMilliseconds();
-
             if (!this.alive) {
                return;
             }
@@ -96,10 +58,10 @@ var PLAYER = (function initPlayer() {
             var oldX = this.x;
             var oldY = this.y;
 
-            if (tempX >= 0 && tempX < ARENA.SIZE) {
+            if (tempX >= 0 && tempX < ARENA.length) {
                this.x = tempX;
             }
-            if (tempY >= 0 && tempY < ARENA.SIZE) {
+            if (tempY >= 0 && tempY < ARENA.length) {
                this.y = tempY;
             }
 
@@ -108,26 +70,15 @@ var PLAYER = (function initPlayer() {
                changes.push(ARENA[oldX][oldY].changeType(0, true));
 
                if (bombInHand) {
-                  var bomb = Object.create(bombInHand);
+                  ARENA.placeBomb(bombInHand.x, bombInHand.y);
 
-                  setTimeout(function fireBomb() {
-                     toggleFire(bomb.x, bomb.y, 4);
-
-                     setTimeout(function clearFire() {
-                        toggleFire(bomb.x, bomb.y, 0);
-                     }, 1000);
-                  }, 2500);
-
-                  changes.push(ARENA[bomb.x][bomb.y].changeType(3, true));
+                  changes.push(ARENA[bombInHand.x][bombInHand.y].changeType(3, true));
 
                   bombInHand = null;
                }
             }
 
             SOCKET.broadcast('UPDATE', {changes: changes});
-
-
-            console.log('moving took: ' + (new Date().getMilliseconds() - measure));
          },
 
          bomb: function bomb() {
@@ -136,27 +87,27 @@ var PLAYER = (function initPlayer() {
       };
    })();
 
-   var PLAYERS = [];
 
    return {
       createPlayer: function createPlayer() {
-         var player = Object.create(PLAYER_PROTOTYPE);
+         var player = new PLAYER();
          player.id = PLAYERS.length;
+         PLAYERS.length += 1;
 
          if (ARENA[0][0].type === 0) {
             player.x = 0;
             player.y = 0;
-         } else if (ARENA[ARENA.SIZE - 1][0].type === 0) {
-            player.x = ARENA.SIZE - 1;
+         } else if (ARENA[ARENA.length - 1][0].type === 0) {
+            player.x = ARENA.length - 1;
             player.y = 0;
-         } else if (ARENA[0][ARENA.SIZE - 1].type === 0) {
+         } else if (ARENA[0][ARENA.length - 1].type === 0) {
             player.x = 0;
-            player.y = ARENA.SIZE - 1;
-         } else if (ARENA[ARENA.SIZE - 1][ARENA.SIZE - 1].type === 0) {
-            player.x = ARENA.SIZE - 1;
-            player.y = ARENA.SIZE - 1;
+            player.y = ARENA.length - 1;
+         } else if (ARENA[ARENA.length - 1][ARENA.length - 1].type === 0) {
+            player.x = ARENA.length - 1;
+            player.y = ARENA.length - 1;
          } else {
-            for (var i = 0; i < ARENA.SIZE; i++) {
+            for (var i = 0; i < ARENA.length; i++) {
                if (ARENA[i] && ARENA[i][0] && ARENA[i][0].type == 0) {
                   player.x = i;
                   player.y = 0;
@@ -178,20 +129,16 @@ var PLAYER = (function initPlayer() {
          PLAYERS.push(player);
 
          return player;
-      },
-
-      getPlayer: function getPlayer(index) {
-         return PLAYERS[index];
       }
    };
 })();
 
 SOCKET.on('connection', function (socket) {
-   var temp = PLAYER.createPlayer();
+   var player = PLAYER.createPlayer();
 
    var arena = [];
-   for (var i = 0; i < ARENA.SIZE; i++) {
-      for (var j = 0; j < ARENA.SIZE; j++) {
+   for (var i = 0; i < ARENA.length; i++) {
+      for (var j = 0; j < ARENA.length; j++) {
          var cell = ARENA[i][j];
          if (cell.type !== 0) {
             arena.push(cell);
@@ -199,10 +146,9 @@ SOCKET.on('connection', function (socket) {
       }
    }
 
-   var map = {changes: arena, size: ARENA.SIZE, player_id: temp.id};
+   var map = {changes: arena, size: ARENA.length, player_id: player.id};
    socket.emit('HELLO', map);
    socket.on('TRIGGER', function onTrigger(data) {
-      var player = PLAYER.getPlayer(data.player_id);
       player.move(data.deltaX, data.deltaY);
    });
 });
