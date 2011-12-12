@@ -1,25 +1,9 @@
 var SOCKET = require('./socket.js');
-var ARENA = ARENA || (function initArena(size) {
-   var map = [];
-   map.length = size;
 
-   for (var i = 0; i < size; i += 1) {
-      map[i] = [];
-
-      for (var j = 0; j < size; j++) {
-         var cell = new CELL(i, j, 0);
-
-         map[i][j] = cell;
-      }
-   }
-
-   return map;
-})(10);
-
-var CELL = CELL || (function initCell(x, y, type) {
+var CELL = CELL || function initCell(x, y, type) {
    return {
-      x: i,
-      y: j,
+      x: x,
+      y: y,
       type: type,
 
       changeType: function changeType(type, enqueue) {
@@ -33,7 +17,7 @@ var CELL = CELL || (function initCell(x, y, type) {
          }
       }
    };
-})();
+};
 
 var placeObstacles = function placeObstacles() {
 
@@ -84,6 +68,22 @@ var placeBomb = function placeBomb(x, y) {
    }, 2500);
 };
 
+var ARENA = ARENA || (function initArena(size) {
+   var map = [];
+   map.length = size;
+
+   for (var i = 0; i < size; i += 1) {
+      map[i] = [];
+
+      for (var j = 0; j < size; j++) {
+         var cell = new CELL(i, j, 0);
+
+         map[i][j] = cell;
+      }
+   }
+
+   return map;
+})(10);
 ARENA.placeBomb = placeBomb;
 
 module.exports = ARENA;
