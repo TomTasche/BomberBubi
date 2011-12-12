@@ -126,7 +126,6 @@ var GAME = (function initGame() {
    };
 })();
 
-document.addEventListener("keyup", onKeyUp, false);
 var onKeyUp = function onKeyUp(event) {
    switch(event.keyCode) {
       case 37:
@@ -158,3 +157,4 @@ var onKeyUp = function onKeyUp(event) {
          GAME.sendMovement(0, 0);
    }
 };
+document.addEventListener("keyup", onKeyUp, false);
