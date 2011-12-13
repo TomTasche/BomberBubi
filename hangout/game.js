@@ -7,7 +7,7 @@ var sendUpdate = function sendUpdate(keyOrState) {
    var state = null;
    if (typeof keyOrState === 'string') {
       state = {};
-      state[keyOrState] = null;
+      state[keyOrState] = '';
    } else if (typeof keyOrState === 'object' && null !== keyOrState) {
       // Ensure that no prototype-level properties are hitching a ride.
       state = {};
