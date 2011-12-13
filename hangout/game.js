@@ -22,7 +22,7 @@ var sendUpdate = function sendUpdate(keyOrState) {
    gapi.hangout.data.submitDelta(state);
 };
 
-var UPDATE = function initUpdate(type, avatar) {
+var prepareUpdate = function prepareUpdate(type, avatar) {
    var object = {
       type: type,
       avatar: avatar
@@ -34,7 +34,7 @@ var UPDATE = function initUpdate(type, avatar) {
 var alterMap = function alterMap(x, y, type, enqueue) {
    var update = {};
    update.key = JSON.stringify({x: x, y: y});
-   update.value = new UPDATE(type);
+   update.value = prepareUpdate(type);
 
    queue.push(update);
 
