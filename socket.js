@@ -1,5 +1,5 @@
 // var SERVER = SERVER || require('./server.js');
-var SOCKETIO = SOCKETIO || require('socket.io').listen(1337);
+var SOCKETIO = SOCKETIO || require('socket.io').listen(443);
 SOCKETIO.set('transports', [
        'websocket',
        'htmlfile', 'xhr-polling', 'jsonp-polling'
