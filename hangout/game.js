@@ -20,7 +20,7 @@ var sendUpdate = function sendUpdate(keyOrState) {
 };
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
-   sendUpdate({x: xDelta, y: yDelta});
+   sendUpdate({x: JSON.stringify(xDelta), y: JSON.stringify(yDelta)});
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
