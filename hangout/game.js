@@ -24,14 +24,11 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
-   window.alert('waiting');
    if (event.isApiReady) {
-      window.alert('ready');
       gapi.hangout.data.onStateChanged.add(function onStateChangedCallback(event) {
-         window.alert('changes');
-         window.alert(event);
-         window.alert(event.addedKeys);
-         window.alert(gapi.hangout.data.getState());
+         window.alert(JSON.stringify(event));
+         window.alert(JSON.stringify(event.addedKeys));
+         window.alert(JSON.stringify(gapi.hangout.data.getState()));
       });
    }
 });
