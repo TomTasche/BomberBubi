@@ -40,12 +40,12 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
    if (event.isApiReady) {
       gapi.hangout.data.onStateChanged.add(function onStateChangedCallback(event) {
-         // window.alert(JSON.stringify(event));
-         window.alert(JSON.stringify(event.addedKeys));
-         // window.alert(JSON.stringify(gapi.hangout.data.getState()));
+         window.alert('event: ' + JSON.stringify(event));
+         window.alert('added: ' + JSON.stringify(event.addedKeys));
+         window.alert('state: ' + JSON.stringify(event.state));
       });
 
-      window.alert(JSON.stringify(gapi.hangout.data.getState()));
+      window.alert('ready: ' + JSON.stringify(gapi.hangout.data.getState()));
    }
 });
 
