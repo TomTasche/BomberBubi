@@ -1,6 +1,7 @@
 var size = 10;
 var x = 0;
 var y = 0;
+var queue = [];
 
 var sendUpdate = function sendUpdate(keyOrState) {
    // taken from: https://code.google.com/p/google-plus-hangout-samples/source/browse/samples/yes-no-maybe/ggs/yesnomaybe.js
@@ -21,20 +22,48 @@ var sendUpdate = function sendUpdate(keyOrState) {
    gapi.hangout.data.submitDelta(state);
 };
 
+var UPDATE = function initUpdate(type, avatar) {
+   return {
+      type: type,
+      avatar: avatar
+   };
+};
+
+var alterMap = function alterMap(x, y, type, enqueue) {
+   var key = JSON.stringify({x: x, y: y});
+   var value = new UPDATE(type);
+
+   queue.push({(key): (value)});
+
+   if (!enqueue) {
+      flushQueue();
+   }
+};
+
+var flushQueue = function flushQueue() {
+   sendUpdate(queue);
+
+   queue = [];
+};
+
 var sendMovement = function sendMovement(xDelta, yDelta) {
+   var changes = [];
+
    var tempX = x + xDelta;
    var tempY = y + yDelta;
 
    // if (xDelta === 0 && yDelta === 0) {
-      // bomb...
+   // bomb...
    // }
 
-   // if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
+   if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
+      alterMap(x, y, 0);
+
       x += xDelta;
       y += yDelta;
 
-      sendUpdate(JSON.stringify({x: x, y: y}));
-   // }
+      alterMap(x, y, 2);
+   }
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
@@ -45,7 +74,9 @@ gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
          window.alert('state: ' + JSON.stringify(event.state));
       });
 
-      window.alert('ready: ' + JSON.stringify(gapi.hangout.data.getState()));
+      if (gapi.hangout.data.getState() === {}) {
+         window.alert('ready: ' + JSON.stringify(gapi.hangout.data.getState()));
+      }
    }
 });
 
