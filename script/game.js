@@ -59,7 +59,7 @@ var GAME = (function initGame() {
          }
       };
 
-      var SOCKET = io.connect('http://184.73.187.157:1337/sockets');
+      var SOCKET = io.connect('http://184.73.187.157:443/sockets');
       SOCKET.on('HELLO', function onHello(data) {
          PLAYER_ID = data.player_id;
 
