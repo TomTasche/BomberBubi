@@ -74,7 +74,7 @@ var alterMap = function alterMap(x, y, type, enqueue) {
          style = '';
    }
 
-   table.rows[x].cells[y].className = style;
+   table.rows[y].cells[x].className = style;
 };
 
 var flushQueue = function flushQueue() {
@@ -129,6 +129,7 @@ var buildTable = function buildTable() {
 
          tbl.appendChild(tblBody);
          tbl.setAttribute("border", "1");
+         tbl.className = 'map_path';
       }
    }
 
