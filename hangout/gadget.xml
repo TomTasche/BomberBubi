@@ -8,6 +8,10 @@
       <![CDATA[
          <script src="//hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=0.1"></script>
          <script src="https://raw.github.com/TomTasche/BomberBubi/master/hangout/game.js"></script>
+
+         <link rel="stylesheet" type="text/css" href="https://raw.github.com/TomTasche/BomberBubi/gh-pages/style/game.css" />
+
+         <div id="game"></div>
       ]]>
    </Content>
 </Module>

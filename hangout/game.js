@@ -2,6 +2,7 @@ var size = 10;
 var x = 0;
 var y = 0;
 var queue = [];
+var table;
 
 var sendUpdate = function sendUpdate(keyOrState) {
    // taken from: https://code.google.com/p/google-plus-hangout-samples/source/browse/samples/yes-no-maybe/ggs/yesnomaybe.js
@@ -41,6 +42,39 @@ var alterMap = function alterMap(x, y, type, enqueue) {
    if (!enqueue) {
       flushQueue();
    }
+
+   var style = 'map_';
+   switch(type) {
+      case 0:
+         style += 'path';
+
+      break;
+
+      case 1:
+         style += 'wall';
+
+      break;
+
+      case 2:
+         style += 'player';
+
+      break;
+
+      case 3:
+         style += 'bomb';
+
+      break;
+
+      case 4:
+         style += 'fire';
+
+      break;
+
+      default:
+         style = '';
+   }
+
+   table.rows[x].cells[y].className = style;
 };
 
 var flushQueue = function flushQueue() {
@@ -75,6 +109,35 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
    flushQueue();
 };
+
+var buildTable = function buildTable() {
+   var root = document.getElementById('game');
+
+   var tbl = document.createElement("table");
+   tbl.id = 'game_table';
+
+   var tblBody = document.createElement("tbody");
+
+   for (var i = 0; i < size; i++) {
+      var row = document.createElement("tr");
+
+      for (var j = 0; j < size; j++) {
+         var tableCell = document.createElement("td");
+         row.appendChild(tableCell);
+
+         tblBody.appendChild(row);
+
+         tbl.appendChild(tblBody);
+         tbl.setAttribute("border", "1");
+      }
+   }
+
+   root.appendChild(tbl);
+
+   table = tbl;
+};
+buildTable();
+
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
    if (event.isApiReady) {
