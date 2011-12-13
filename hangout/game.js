@@ -33,7 +33,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
       x += xDelta;
       y += yDelta;
 
-      sendUpdate({x: JSON.stringify(x), y: JSON.stringify(y)});
+      sendUpdate(JSON.stringify({x: x, y: y}));
    }
 };
 
