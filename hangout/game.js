@@ -30,10 +30,11 @@ var UPDATE = function initUpdate(type, avatar) {
 };
 
 var alterMap = function alterMap(x, y, type, enqueue) {
-   var key = JSON.stringify({x: x, y: y});
-   var value = new UPDATE(type);
+   var update = {};
+   update.key = JSON.stringify({x: x, y: y});
+   update.value = new UPDATE(type);
 
-   queue.push({(key): (value)});
+   queue.push(update);
 
    if (!enqueue) {
       flushQueue();
