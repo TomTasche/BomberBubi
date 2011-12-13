@@ -7,7 +7,7 @@ var sendUpdate = function sendUpdate(keyOrState) {
    var state = null;
    if (typeof keyOrState === 'string') {
       state = {};
-      state[keyOrState] = opt_value;
+      state[keyOrState] = keyOrState;
    } else if (typeof keyOrState === 'object' && null !== keyOrState) {
       // Ensure that no prototype-level properties are hitching a ride.
       state = {};
@@ -25,16 +25,16 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    var tempX = x + xDelta;
    var tempY = y + yDelta;
 
-   if (xDelta === 0 && yDelta === 0) {
+   // if (xDelta === 0 && yDelta === 0) {
       // bomb...
-   }
+   // }
 
-   if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
+   // if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
       x += xDelta;
       y += yDelta;
 
       sendUpdate(JSON.stringify({x: x, y: y}));
-   }
+   // }
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
