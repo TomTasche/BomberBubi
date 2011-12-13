@@ -72,6 +72,8 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
       alterMap(x, y, 2, true);
    }
+
+   flushQueue();
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
