@@ -44,7 +44,12 @@ var alterMap = function alterMap(x, y, type, enqueue) {
 };
 
 var flushQueue = function flushQueue() {
-   sendUpdate(queue);
+   var object = {};
+   for (var i = 0; i < queue.length; i++) {
+      object[queue[i].key] = queue[i].value;
+   }
+
+   sendUpdate(object);
 
    queue = [];
 };
