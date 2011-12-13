@@ -65,12 +65,12 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    // }
 
    if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
-      alterMap(x, y, 0);
+      alterMap(x, y, 0, true);
 
       x += xDelta;
       y += yDelta;
 
-      alterMap(x, y, 2);
+      alterMap(x, y, 2, true);
    }
 };
 
