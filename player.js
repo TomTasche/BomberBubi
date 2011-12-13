@@ -18,7 +18,7 @@ var PLAYER = function initPlayer() {
       },
 
       move: function move(deltaX, deltaY) {
-         if (!this.alive) {
+         if (this.locked || !this.alive) {
             return;
          }
 
@@ -51,9 +51,9 @@ var PLAYER = function initPlayer() {
              ARENA[oldX + deltaX][oldY + deltaY].type == 4) {
             ARENA[oldX][oldY].changeType(0);
 
-            this.kill();
+         this.kill();
 
-            return;
+         return;
          }
          if (ARENA[oldX + deltaX] && ARENA[oldX + deltaX][oldY + deltaY] &&
              ARENA[oldX + deltaX][oldY + deltaY].type == 2) {
