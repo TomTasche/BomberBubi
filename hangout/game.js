@@ -1,4 +1,6 @@
 var size = 10;
+var x = 0;
+var y = 0;
 
 var sendUpdate = function sendUpdate(keyOrState) {
    // taken from: https://code.google.com/p/google-plus-hangout-samples/source/browse/samples/yes-no-maybe/ggs/yesnomaybe.js
@@ -20,16 +22,30 @@ var sendUpdate = function sendUpdate(keyOrState) {
 };
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
-   sendUpdate({x: JSON.stringify(xDelta), y: JSON.stringify(yDelta)});
+   var tempX = x + xDelta;
+   var tempY = y + yDelta;
+
+   if (xDelta === 0 && yDelta === 0) {
+      // bomb...
+   }
+
+   if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
+      x += xDelta;
+      y += yDelta;
+
+      sendUpdate({x: JSON.stringify(x), y: JSON.stringify(y)});
+   }
 };
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
    if (event.isApiReady) {
       gapi.hangout.data.onStateChanged.add(function onStateChangedCallback(event) {
-         window.alert(JSON.stringify(event));
+         // window.alert(JSON.stringify(event));
          window.alert(JSON.stringify(event.addedKeys));
-         window.alert(JSON.stringify(gapi.hangout.data.getState()));
+         // window.alert(JSON.stringify(gapi.hangout.data.getState()));
       });
+
+      window.alert(JSON.stringify(gapi.hangout.data.getState()));
    }
 });
 
