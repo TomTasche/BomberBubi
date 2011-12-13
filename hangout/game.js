@@ -23,10 +23,12 @@ var sendUpdate = function sendUpdate(keyOrState) {
 };
 
 var UPDATE = function initUpdate(type, avatar) {
-   return {
+   var object = {
       type: type,
       avatar: avatar
    };
+
+   return JSON.stringify(object);
 };
 
 var alterMap = function alterMap(x, y, type, enqueue) {
