@@ -136,7 +136,6 @@ var buildTable = function buildTable() {
 
    table = tbl;
 };
-buildTable();
 
 
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
@@ -147,9 +146,7 @@ gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
          window.alert('state: ' + JSON.stringify(event.state));
       });
 
-      if (gapi.hangout.data.getState() === {}) {
-         window.alert('ready: ' + JSON.stringify(gapi.hangout.data.getState()));
-      }
+      buildTable();
    }
 });
 
