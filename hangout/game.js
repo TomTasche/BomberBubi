@@ -1,8 +1,10 @@
 var size = 10;
 var x = 0;
 var y = 0;
+var alive = true;
 var queue = [];
 var table;
+var bombInHand;
 
 var sendUpdate = function sendUpdate(keyOrState) {
    // taken from: https://code.google.com/p/google-plus-hangout-samples/source/browse/samples/yes-no-maybe/ggs/yesnomaybe.js
@@ -30,6 +32,53 @@ var prepareUpdate = function prepareUpdate(type, avatar) {
    };
 
    return JSON.stringify(object);
+};
+
+var toggleFire = function toggleFire(x, y, state) {
+   alterMap(x, y, state, true);
+
+   if (x + 1 < size) {
+      alterMap(x + 1, y, state, true);
+   }
+   if (x + 2 < size) {
+      alterMap(x + 2, y, state, true);
+   }
+   if (x - 1 >= 0) {
+      alterMap(x - 1, y, state, true);
+   }
+   if (x - 2 >= 0) {
+      alterMap(x - 2, y, state, true);
+   }
+   if (y + 1 < size) {
+      alterMap(x, y + 1, state, true);
+   }
+   if (y + 2 < size) {
+      alterMap(x, y + 2, state, true);
+   }
+   if (y - 1 >= 0) {
+      alterMap(x, y - 1, state, true);
+   }
+   if (y - 2 >= 0) {
+      alterMap(x, y - 2, state, true);
+   }
+
+   flushQueue();
+};
+
+var placeBomb = function placeBomb(x, y) {
+   setTimeout(function fireBomb() {
+      toggleFire(x, y, 4);
+
+      setTimeout(function clearFire() {
+         toggleFire(x, y, 0);
+      }, 1000);
+   }, 2500);
+};
+
+var kill = function kill() {
+   alive = false;
+   x = -1;
+   y = -1;
 };
 
 var alterMap = function alterMap(x, y, type, enqueue) {
@@ -88,21 +137,68 @@ var flushQueue = function flushQueue() {
    queue = [];
 };
 
+var getCellForCoordinates = function getCellForCoordinates(x, y) {
+   var name = JSON.stringify({x: x, y: y});
+
+   return gapi.hangout.data.getState()[name];
+};
+
+
 var sendMovement = function sendMovement(xDelta, yDelta) {
+   if (!alive) {
+      return;
+   }
+
    var changes = [];
 
    var tempX = x + xDelta;
    var tempY = y + yDelta;
 
-   // if (xDelta === 0 && yDelta === 0) {
-   // bomb...
-   // }
+   if (x < 0 && y < 0) {
+      return;
+   }
+   if (oldX][oldY].type != 2) {
+      kill();
+
+      return;
+   }
+
+
+   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
+       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 1 || getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 3)) {
+      return;
+   }
+   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
+       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 4) {
+      alterMap(oldX, oldY, 0);
+
+   kill();
+
+   return;
+   }
+   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
+       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 2) {
+      return;
+   }
+
+   if (xDelta === 0 && yDelta === 0) {
+      bombInHand = {x: x, y: y};
+   }
 
    if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
       alterMap(x, y, 0, true);
 
       x += xDelta;
       y += yDelta;
+
+
+      if (bombInHand) {
+         placeBomb(bombInHand.x, bombInHand.y);
+
+         alterMap(bombInHand.x, bombInHand.y, 3, true);
+
+         bombInHand = null;
+      }
 
       alterMap(x, y, 2, true);
    }
