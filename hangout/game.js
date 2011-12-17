@@ -81,15 +81,17 @@ var kill = function kill() {
    y = -1;
 };
 
-var alterMap = function alterMap(x, y, type, enqueue) {
-   var update = {};
-   update.key = JSON.stringify({x: x, y: y});
-   update.value = prepareUpdate(type);
+var alterMap = function alterMap(x, y, type, enqueue, drop) {
+   if (!drop) {
+      var update = {};
+      update.key = JSON.stringify({x: x, y: y});
+      update.value = prepareUpdate(type);
 
-   queue.push(update);
+      queue.push(update);
 
-   if (!enqueue) {
-      flushQueue();
+      if (!enqueue) {
+         flushQueue();
+      }
    }
 
    var style = 'map_';
@@ -239,9 +241,17 @@ var buildTable = function buildTable() {
 gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
    if (event.isApiReady) {
       gapi.hangout.data.onStateChanged.add(function onStateChangedCallback(event) {
-         window.alert('event: ' + JSON.stringify(event));
-         window.alert('added: ' + JSON.stringify(event.addedKeys));
-         window.alert('state: ' + JSON.stringify(event.state));
+         console.log('event: ' + JSON.stringify(event));
+         console.log('added: ' + JSON.stringify(event.addedKeys));
+         console.log('state: ' + JSON.stringify(event.state));
+
+         for (var i = 0; i < event.addedKeys.length; i++) {
+            var move = event.addedKeys[i];
+            var coordinates = JSON.parse(move.key);
+            var value = JSON.parse(move.value);
+
+            alterMap(coordinates.x, coordinates.y, value.type, false, true);
+         }
       });
 
       buildTable();
