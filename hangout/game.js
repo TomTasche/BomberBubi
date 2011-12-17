@@ -1,7 +1,7 @@
 var size = 10;
-var x = 0;
-var y = 0;
-var alive = true;
+var x = -1;
+var y = -1;
+var alive = false;
 var queue = [];
 var table;
 var bombInHand;
@@ -130,7 +130,9 @@ var getCellForCoordinates = function getCellForCoordinates(x, y) {
 };
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
-   if (!alive) {
+   if (!alive || x < 0 || y < 0) {
+      kill();
+
       return;
    }
 
@@ -139,17 +141,11 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    var tempX = x + xDelta;
    var tempY = y + yDelta;
 
-   if (x < 0 && y < 0) {
-      kill();
-
-      return;
-   }
    if (getCellForCoordinates(x, y) && getCellForCoordinates(x, y).type != 2) {
       kill();
 
       return;
    }
-
 
    if (getCellForCoordinates(tempX, tempY) &&
        (getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 2 || getCellForCoordinates(tempX, tempY).type == 3)) {
@@ -238,6 +234,11 @@ gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
       });
 
       buildTable();
+
+      alive = true;
+      x = 0;
+      y = 0;
+      alterMap(x, y, type);
    }
 });
 
