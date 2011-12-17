@@ -140,6 +140,7 @@ var flushQueue = function flushQueue() {
 var getCellForCoordinates = function getCellForCoordinates(x, y) {
    var name = JSON.stringify({x: x, y: y});
 
+
    return gapi.hangout.data.getState()[name];
 };
 
@@ -157,7 +158,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    if (x < 0 && y < 0) {
       return;
    }
-   if (oldX][oldY].type != 2) {
+   if (getCellForCoordinates(x, y).type != 2) {
       kill();
 
       return;
