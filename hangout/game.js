@@ -134,9 +134,9 @@ var flushQueue = function flushQueue() {
       object[queue[i].key] = queue[i].value;
    }
 
-   sendUpdate(object);
-
    queue = [];
+   
+   gapi.hangout.data.submitDelta(object);
 };
 
 var getCellForCoordinates = function getCellForCoordinates(x, y) {
@@ -145,7 +145,6 @@ var getCellForCoordinates = function getCellForCoordinates(x, y) {
 
    return gapi.hangout.data.getState()[name];
 };
-
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
    if (!alive) {
