@@ -238,7 +238,7 @@ gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
       alive = true;
       x = 0;
       y = 0;
-      alterMap(x, y, type);
+      alterMap(x, y, 2);
    }
 });
 
