@@ -165,20 +165,20 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    }
 
 
-   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
-       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 1 || getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 3) {
+   if (getCellForCoordinates(tempX, tempY) &&
+       getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 3) {
       return;
    }
-   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
-       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 4) {
+   if (getCellForCoordinates(tempX, tempY) &&
+       getCellForCoordinates(tempX, tempY).type == 4) {
       alterMap(oldX, oldY, 0);
 
    kill();
 
    return;
    }
-   if (getCellForCoordinates(oldX + deltaX, oldY + deltaY) &&
-       getCellForCoordinates(oldX + deltaX, oldY + deltaY).type == 2) {
+   if (getCellForCoordinates(tempX, tempY) &&
+       getCellForCoordinates(tempX, tempY).type == 2) {
       return;
    }
 
@@ -189,8 +189,8 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
       alterMap(x, y, 0, true);
 
-      x += xDelta;
-      y += yDelta;
+      x = tempX;
+      y = tempY;
 
 
       if (bombInHand) {
