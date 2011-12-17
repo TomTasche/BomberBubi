@@ -158,7 +158,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    if (x < 0 && y < 0) {
       return;
    }
-   if (getCellForCoordinates(x, y).type != 2) {
+   if (getCellForCoordinates(x, y) && getCellForCoordinates(x, y).type != 2) {
       kill();
 
       return;
