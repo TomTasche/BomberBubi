@@ -44,8 +44,7 @@ var flushQueue = function flushQueue() {
    gapi.hangout.data.submitDelta(object);
 };
 
-var alterMap = function alterMap(x, y, type, enqueue, drop) {
-   if (!drop) {
+var alterMap = function alterMap(x, y, type, enqueue) {
       var update = {};
       update.key = JSON.stringify({x: x, y: y});
       update.value = prepareUpdate(type);
@@ -55,8 +54,9 @@ var alterMap = function alterMap(x, y, type, enqueue, drop) {
       if (!enqueue) {
          flushQueue();
       }
-   }
+};
 
+var changeStyle = function changeStyle(x, y, type) {
    var style = 'map_';
    switch(type) {
       case 0:
@@ -89,7 +89,7 @@ var alterMap = function alterMap(x, y, type, enqueue, drop) {
    }
 
    table.rows[y].cells[x].className = style;
-};
+}
 
 var toggleFire = function toggleFire(x, y, state) {
    alterMap(x, y, state, true);
@@ -233,7 +233,7 @@ gapi.hangout.onApiReady.add(function onApiReadyCallback(event) {
             var coordinates = JSON.parse(move.key);
             var value = JSON.parse(move.value);
 
-            alterMap(coordinates.x, coordinates.y, value.type, false, true);
+            changeStyle(coordinates.x, coordinates.y, value.type);
          }
       });
 
