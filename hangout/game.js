@@ -25,8 +25,8 @@ var placeBomb = function placeBomb(x, y) {
    }, 2500);
 };
 
-var kill = function kill() {
-   console.log('killed!!!');
+var kill = function kill(reason) {
+   console.log('killed because ' + reason);
 
    alive = false;
    x = -1;
@@ -131,7 +131,7 @@ var getCellForCoordinates = function getCellForCoordinates(x, y) {
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
    if (!alive || x < 0 || y < 0) {
-      kill();
+      kill('dead');
 
       return;
    }
@@ -142,7 +142,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    var tempY = y + yDelta;
 
    if (getCellForCoordinates(x, y) && getCellForCoordinates(x, y).type != 2) {
-      kill();
+      kill('unknown');
 
       return;
    }
@@ -154,7 +154,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    if (getCellForCoordinates(tempX, tempY) && getCellForCoordinates(tempX, tempY).type == 4) {
       alterMap(oldX, oldY, 0);
 
-      kill();
+      kill('fire');
 
       return;
    }
