@@ -166,7 +166,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
 
    if (getCellForCoordinates(tempX, tempY) &&
-       getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 3) {
+       (getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 3)) {
       return;
    }
    if (getCellForCoordinates(tempX, tempY) &&
