@@ -6,25 +6,6 @@ var queue = [];
 var table;
 var bombInHand;
 
-var sendUpdate = function sendUpdate(keyOrState) {
-   // taken from: https://code.google.com/p/google-plus-hangout-samples/source/browse/samples/yes-no-maybe/ggs/yesnomaybe.js
-   var state = null;
-   if (typeof keyOrState === 'string') {
-      state = {};
-      state[keyOrState] = '';
-   } else if (typeof keyOrState === 'object' && null !== keyOrState) {
-      // Ensure that no prototype-level properties are hitching a ride.
-      state = {};
-      for (var key in keyOrState) {
-         if (keyOrState.hasOwnProperty(key)) {
-            state[key] = keyOrState[key];
-         }
-      }
-   }
-
-   gapi.hangout.data.submitDelta(state);
-};
-
 var prepareUpdate = function prepareUpdate(type, avatar) {
    var object = {
       type: type,
@@ -32,37 +13,6 @@ var prepareUpdate = function prepareUpdate(type, avatar) {
    };
 
    return JSON.stringify(object);
-};
-
-var toggleFire = function toggleFire(x, y, state) {
-   alterMap(x, y, state, true);
-
-   if (x + 1 < size) {
-      alterMap(x + 1, y, state, true);
-   }
-   if (x + 2 < size) {
-      alterMap(x + 2, y, state, true);
-   }
-   if (x - 1 >= 0) {
-      alterMap(x - 1, y, state, true);
-   }
-   if (x - 2 >= 0) {
-      alterMap(x - 2, y, state, true);
-   }
-   if (y + 1 < size) {
-      alterMap(x, y + 1, state, true);
-   }
-   if (y + 2 < size) {
-      alterMap(x, y + 2, state, true);
-   }
-   if (y - 1 >= 0) {
-      alterMap(x, y - 1, state, true);
-   }
-   if (y - 2 >= 0) {
-      alterMap(x, y - 2, state, true);
-   }
-
-   flushQueue();
 };
 
 var placeBomb = function placeBomb(x, y) {
@@ -76,9 +26,22 @@ var placeBomb = function placeBomb(x, y) {
 };
 
 var kill = function kill() {
+   console.log('killed!!!');
+
    alive = false;
    x = -1;
    y = -1;
+};
+
+var flushQueue = function flushQueue() {
+   var object = {};
+   for (var i = 0; i < queue.length; i++) {
+      object[queue[i].key] = queue[i].value;
+   }
+
+   queue = [];
+
+   gapi.hangout.data.submitDelta(object);
 };
 
 var alterMap = function alterMap(x, y, type, enqueue, drop) {
@@ -128,15 +91,35 @@ var alterMap = function alterMap(x, y, type, enqueue, drop) {
    table.rows[y].cells[x].className = style;
 };
 
-var flushQueue = function flushQueue() {
-   var object = {};
-   for (var i = 0; i < queue.length; i++) {
-      object[queue[i].key] = queue[i].value;
+var toggleFire = function toggleFire(x, y, state) {
+   alterMap(x, y, state, true);
+
+   if (x + 1 < size) {
+      alterMap(x + 1, y, state, true);
+   }
+   if (x + 2 < size) {
+      alterMap(x + 2, y, state, true);
+   }
+   if (x - 1 >= 0) {
+      alterMap(x - 1, y, state, true);
+   }
+   if (x - 2 >= 0) {
+      alterMap(x - 2, y, state, true);
+   }
+   if (y + 1 < size) {
+      alterMap(x, y + 1, state, true);
+   }
+   if (y + 2 < size) {
+      alterMap(x, y + 2, state, true);
+   }
+   if (y - 1 >= 0) {
+      alterMap(x, y - 1, state, true);
+   }
+   if (y - 2 >= 0) {
+      alterMap(x, y - 2, state, true);
    }
 
-   queue = [];
-   
-   gapi.hangout.data.submitDelta(object);
+   flushQueue();
 };
 
 var getCellForCoordinates = function getCellForCoordinates(x, y) {
@@ -157,6 +140,8 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
    var tempY = y + yDelta;
 
    if (x < 0 && y < 0) {
+      kill();
+
       return;
    }
    if (getCellForCoordinates(x, y) && getCellForCoordinates(x, y).type != 2) {
@@ -167,16 +152,15 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
 
    if (getCellForCoordinates(tempX, tempY) &&
-       (getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 3)) {
+       (getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 2 || getCellForCoordinates(tempX, tempY).type == 3)) {
       return;
    }
-   if (getCellForCoordinates(tempX, tempY) &&
-       getCellForCoordinates(tempX, tempY).type == 4) {
+   if (getCellForCoordinates(tempX, tempY) && getCellForCoordinates(tempX, tempY).type == 4) {
       alterMap(oldX, oldY, 0);
 
-   kill();
+      kill();
 
-   return;
+      return;
    }
    if (getCellForCoordinates(tempX, tempY) &&
        getCellForCoordinates(tempX, tempY).type == 2) {
