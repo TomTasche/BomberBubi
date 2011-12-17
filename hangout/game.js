@@ -124,9 +124,10 @@ var toggleFire = function toggleFire(x, y, state) {
 
 var getCellForCoordinates = function getCellForCoordinates(x, y) {
    var name = JSON.stringify({x: x, y: y});
+   var cell = gapi.hangout.data.getState()[name];
+   console.log(cell);
 
-
-   return gapi.hangout.data.getState()[name];
+   return cell;
 };
 
 var sendMovement = function sendMovement(xDelta, yDelta) {
