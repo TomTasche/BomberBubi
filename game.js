@@ -92,6 +92,8 @@ var changeStyle = function changeStyle(x, y, type) {
 }
 
 var toggleFire = function toggleFire(x, y, state) {
+   console.log('fire!!');
+
    alterMap(x, y, state, true);
 
    if (x + 1 < size) {
@@ -151,7 +153,7 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
       return;
    }
 
-   if (getCellForCoordinates(tempX, tempY) &&
+   if (getCellForCoordinates(tempX, tempY) && xDelta !== 0 && yDelta !== 0 &&
        (getCellForCoordinates(tempX, tempY).type == 1 || getCellForCoordinates(tempX, tempY).type == 2 || getCellForCoordinates(tempX, tempY).type == 3)) {
       return;
    }
@@ -169,6 +171,8 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
    if (xDelta === 0 && yDelta === 0) {
       bombInHand = {x: x, y: y};
+
+      return;
    }
 
    if (tempX >= 0 && tempX < size && tempY >= 0 && tempY < size) {
