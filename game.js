@@ -164,10 +164,6 @@ var sendMovement = function sendMovement(xDelta, yDelta) {
 
       return;
    }
-   if (getCellForCoordinates(tempX, tempY) &&
-       getCellForCoordinates(tempX, tempY).type == 2) {
-      return;
-   }
 
    if (xDelta === 0 && yDelta === 0) {
       bombInHand = {x: x, y: y};
