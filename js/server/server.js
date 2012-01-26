@@ -8,6 +8,8 @@ HTTP = HTTP.createServer(function onRequest(req, res) {
       uri = '/index.html';
    }
 
+   if (uri == '/socket.io/socket.io.js') return;
+
    console.log(uri);
 
    FS.readFile(__dirname + '/../client' + uri,
