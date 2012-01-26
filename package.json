@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git://github.com/TomTasche/BomberBubi.git"
   },
-  "main": "./server/server.js",
+  "main": "./js/server/server.js",
   "engines": {
     "node": "0.8"
   },
