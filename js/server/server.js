@@ -5,7 +5,7 @@ var HTTP = require('http');
 HTTP = HTTP.createServer(function onRequest(req, res) {
    var uri = URL.parse(req.url).pathname;
    if (uri == '/') {
-      uri = '/game.html';
+      uri = '/index.html';
    }
 
    console.log(uri);
