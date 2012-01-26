@@ -1,0 +1,29 @@
+#game {
+   width: 200px;
+   height: 200px;
+}
+
+#game_table {
+   width: 100%;
+   height: 100%;
+}
+
+.map_wall {
+   background-color: grey;
+}
+
+.map_player {
+   background-color: blue;
+}
+
+.map_bomb {
+   background-color: black;
+}
+
+.map_path {
+   background-color: white;
+}
+
+.map_fire {
+   background-color: red;
+}

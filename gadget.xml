@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+   <ModulePrefs title="HangoutBomber">
+      <Require feature="rpc"/>
+      <Require feature="views"/>
+   </ModulePrefs>
+   <Content type="html">
+      <![CDATA[
+         <script src="//hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=0.1"></script>
+         <script src="https://raw.github.com/TomTasche/BomberBubi/hangout/game.js"></script>
+
+         <!--<link rel="stylesheet" type="text/css" href="http://tomtasche.github.com/BomberBubi/style/game.css" />-->
+
+         <link rel="stylesheet" type="text/css" href="https://raw.github.com/TomTasche/BomberBubi/hangout/style.css" />
+
+         <div id="game"></div>
+      ]]>
+   </Content>
+</Module>
