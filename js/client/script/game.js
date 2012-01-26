@@ -59,7 +59,7 @@ var GAME = (function initGame() {
          }
       };
 
-      var SOCKET = io.connect('http://184.73.187.157/sockets');
+      var SOCKET = io.connect('http://bomberbubi.tomtasche.at/sockets');
       SOCKET.on('HELLO', function onHello(data) {
          PLAYER_ID = data.player_id;
 
