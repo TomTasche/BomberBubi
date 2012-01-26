@@ -1,4 +1,4 @@
-// var SERVER = SERVER || require('./server.js');
+var SERVER = SERVER || require('./server.js');
 var SOCKETIO = SOCKETIO || require('socket.io').listen(process.env.PORT || 80);
 SOCKETIO.set('transports', [
        'websocket',
