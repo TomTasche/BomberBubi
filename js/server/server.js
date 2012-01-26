@@ -21,8 +21,8 @@ HTTP = HTTP.createServer(function onRequest(req, res) {
                   res.end(data);
                });
 });
-HTTP.listen(80);
+HTTP.listen(process.env.PORT || 80);
 
-console.log('server running at 80');
+console.log('server running');
 
 module.exports = HTTP;
