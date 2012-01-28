@@ -132,52 +132,44 @@ var GAME = (function initGame() {
         root.appendChild(tbl);
     };
 
-    return {
-        sendMovement: function sendMovement(deltaX, deltaY) {
-            SOCKET.sendMovement(deltaX, deltaY);
+    var sendMovement = function sendMovement(deltaX, deltaY) {
+        SOCKET.sendMovement(deltaX, deltaY);
+    }
+
+    var JOYSTICK = new VirtualJoystick({mouseSupport: true, container: document.getElementById('game')});
+    var isKeyActive = function isKeyActive(keys, name) {
+        for (var i = 0; i < keys.length; i++) {
+            if (keys[i] === name) return true;
         }
-    };
-})();
 
-var hold = false;
-var onKeyUp = function onKeyUp(event) {
-    switch (event.keyCode) {
-        case 37:
-            // left
-            GAME.sendMovement(-1, 0);
+        return false;
+    }
+    var hold = false;
+    var checkInput = function checkInput() {
+        var keys = KeyboardJS.activeKeys();
 
-            break;
-
-        case 38:
-            // up
-            GAME.sendMovement(0, -1);
-
-            break;
-
-        case 39:
-            // right
-            GAME.sendMovement(1, 0);
-
-            break;
-
-        case 40:
-            // down
-            GAME.sendMovement(0, 1);
-
-            break;
-
-        case 32:
-            // space
+        if (JOYSTICK.left() || isKeyActive(keys, 'left')) {
+            sendMovement(-1, 0);
+        } else if (JOYSTICK.up() || isKeyActive(keys, 'up')) {
+            sendMovement(0, -1);
+        } else if (JOYSTICK.right() || isKeyActive(keys, 'right')) {
+            sendMovement(1, 0);
+        } else if (JOYSTICK.down() || isKeyActive(keys, 'down')) {
+            sendMovement(0, 1);
+        } else if (isKeyActive(keys, 'space') || isKeyActive(keys, 'spacebar')) {
             if (hold) return;
             hold = true;
-            
-            GAME.sendMovement(0, 0);
+
+            sendMovement(0, 0);
             
             // if you want to decrease the number of bombs placed in the game, upper the timeout
             window.setTimeout("hold = false", 0);
-    }
-};
-document.addEventListener("keyup", onKeyUp, false);
+        }
+    };
+    window.setInterval(checkInput, 500);
+
+    document.addEventListener('keydown', checkInput);
+})();
 
 document.onkeydown = function(e) {
     //Prevent scrolling
