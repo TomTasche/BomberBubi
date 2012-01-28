@@ -40,7 +40,7 @@ var PLAYER = function initPlayer() {
             var tempY = oldY + deltaY;
             var size = ARENA.length;
 
-            if (oldX < 0 && oldY < 0) {
+            if (oldX < 0 || oldY < 0 || tempX < 0 || tempX >= size || tempY < 0 || tempY >= size) {
                 return;
             }
             if (ARENA[oldX][oldY].type != this.id) {
