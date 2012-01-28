@@ -24,7 +24,7 @@ HTTP = HTTP.createServer(function onRequest(req, res) {
         res.end(data);
     });*/
 
-    file.serve(request, response);
+    STATIC.serve(request, response);
 });
 HTTP.listen(process.env.PORT || 80);
 
