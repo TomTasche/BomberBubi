@@ -1,7 +1,8 @@
 var FS = FS || require('fs');
 var URL = URL || require("url");
 var HTTP = require('http');
-var STATIC = require('node-static')('.', {cache: 3600});
+var STATIC = require('node-static');
+STATIC = new STATIC.Server('.', {cache: 3600});
 
 HTTP = HTTP.createServer(function onRequest(req, res) {
     var uri = URL.parse(req.url).pathname;
