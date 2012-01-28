@@ -2,7 +2,6 @@ var GAME = (function initGame() {
     var CELL = function initCell() {
         return {
             type: -1,
-
             cell: null,
 
             changeType: function changeType(newType) {
@@ -32,12 +31,11 @@ var GAME = (function initGame() {
                         break;
     
                     case PLAYER_ID:
-                        style += 'player';
-                        
-                        break;
     
                     default:
                         style += 'player';
+                        
+                        this.cell.innerText = newType;
                 }
 
                 if (newType == PLAYER_ID) {
@@ -66,9 +64,14 @@ var GAME = (function initGame() {
         };
 
         var SOCKET = io.connect('http://10.0.79.126/sockets');
-
         SOCKET.on('KILL', function onKill(data) {
             window.location.reload();
+        });
+        SOCKET.on('SCORE', function onScore(data) {
+            var scores = data.scores;
+            for (var i = 0; i < scores.length; i++) {
+                console.log((i + 5) + ' died ' + scores[i].score);
+            }
         });
         SOCKET.on('HELLO', function onHello(data) {
             PLAYER_ID = data.player_id;

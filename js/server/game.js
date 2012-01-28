@@ -27,7 +27,20 @@ var CELL = CELL || function initCell(x, y, type) {
 };
 
 var placeObstacles = function placeObstacles() {
+    var random = function random(size) {
+        return Math.round(Math.random() * size);
+    };
+    
+    var changes = [];
+    var size = ARENA.length;
 
+    for (var i = 0; i < 5; i++) {
+        changes.push(ARENA[random(size)][random(size)].changeType(1, true));
+    }
+
+    SOCKET.broadcast('UPDATE', {
+        changes: changes
+    });
 };
 var placeItems = function placeItems() {
     // setInterval(placeItems);

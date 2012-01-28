@@ -1,6 +1,7 @@
 var ARENA = require('./game.js');
 var SOCKET = require('./socket.js');
 var PLAYERS = [];
+var LEADERBOARD = [];
 
 var PLAYER = function initPlayer() {
     var bombInHand;
@@ -20,6 +21,11 @@ var PLAYER = function initPlayer() {
 
             this.socket.emit('KILL', {
                 hi: 'hi'
+            });
+            
+            LEADERBOARD[this.id - 5] += 1;
+            SOCKET.broadcast('SCORE', {
+                scores: LEADERBOARD
             });
         },
 
@@ -49,17 +55,17 @@ var PLAYER = function initPlayer() {
                 return;
             }
 
-            if (ARENA[oldX + deltaX] && ARENA[oldX + deltaX][oldY + deltaY] && (ARENA[oldX + deltaX][oldY + deltaY].type == 1 || ARENA[oldX + deltaX][oldY + deltaY].type == 3)) {
+            if (ARENA[oldX + deltaX][oldY + deltaY].type == 1 || ARENA[oldX + deltaX][oldY + deltaY].type == 3) {
                 return;
             }
-            if (ARENA[oldX + deltaX] && ARENA[oldX + deltaX][oldY + deltaY] && ARENA[oldX + deltaX][oldY + deltaY].type == 4) {
+            if (ARENA[oldX + deltaX][oldY + deltaY].type == 4) {
                 ARENA[oldX][oldY].changeType(0);
 
                 this.kill('fire');
 
                 return;
             }
-            if (ARENA[oldX + deltaX] && ARENA[oldX + deltaX][oldY + deltaY] && ARENA[oldX + deltaX][oldY + deltaY].type > 4) {
+            if (ARENA[oldX + deltaX][oldY + deltaY].type > 4) {
                 return;
             }
 
@@ -120,14 +126,14 @@ var createPlayer = function createPlayer() {
         player.y = size - 1;
     } else {
         for (var i = 0; i < size; i++) {
-            if (ARENA[i] && ARENA[i][0] && ARENA[i][0].type == 0) {
+            if (ARENA[i][0].type === 0) {
                 player.x = i;
                 player.y = 0;
 
                 break;
             }
 
-            if (ARENA[0] && ARENA[0][i] && ARENA[0][i].type == 0) {
+            if (ARENA[0][i].type === 0) {
                 player.x = 0;
                 player.y = i;
 
@@ -137,6 +143,7 @@ var createPlayer = function createPlayer() {
     }
 
     PLAYERS[player.id - 5] = player;
+    LEADERBOARD[player.id - 5] = 0;
 
     ARENA[player.x][player.y].changeType(player.id);
 
