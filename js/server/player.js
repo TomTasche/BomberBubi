@@ -11,11 +11,14 @@ var PLAYER = function initPlayer() {
       x: -1,
       y: -1,
 
-      kill: function kill() {
+      kill: function kill(message) {
          this.alive = false;
          this.x = -1;
          this.y = -1;
-      },
+
+console.log('KILLED! because: ' + message);
+
+this.socket.emit('KILL', {hi: 'hi'});      },
 
       move: function move(deltaX, deltaY) {
          if (this.locked || !this.alive) {
@@ -31,8 +34,8 @@ var PLAYER = function initPlayer() {
          if (oldX < 0 && oldY < 0) {
             return;
          }
-         if (ARENA[oldX][oldY].type != 2) {
-            this.kill();
+         if (ARENA[oldX][oldY].type != this.id) {
+            this.kill('locationcheck');
 
             return;
          }
@@ -51,12 +54,12 @@ var PLAYER = function initPlayer() {
              ARENA[oldX + deltaX][oldY + deltaY].type == 4) {
             ARENA[oldX][oldY].changeType(0);
 
-         this.kill();
+         this.kill('fire');
 
          return;
          }
          if (ARENA[oldX + deltaX] && ARENA[oldX + deltaX][oldY + deltaY] &&
-             ARENA[oldX + deltaX][oldY + deltaY].type == 2) {
+             ARENA[oldX + deltaX][oldY + deltaY].type > 4) {
             return;
          }
 
@@ -70,7 +73,7 @@ var PLAYER = function initPlayer() {
          }
 
          if (this.x != oldX ||this.y != oldY) {
-            changes.push(ARENA[this.x][this.y].changeType(2, true));
+            changes.push(ARENA[this.x][this.y].changeType(this.id, true));
             changes.push(ARENA[oldX][oldY].changeType(0, true));
 
             if (bombInHand) {
@@ -94,7 +97,7 @@ var PLAYER = function initPlayer() {
 var createPlayer = function createPlayer() {
    var size = ARENA.length;
    var player = new PLAYER();
-   player.id = PLAYERS.length;
+   player.id = 5 + PLAYERS.length;
    PLAYERS.length += 1;
 
    if (ARENA[0][0].type === 0) {
@@ -127,9 +130,9 @@ var createPlayer = function createPlayer() {
       }
    }
 
-   PLAYERS[player.id] = player;
+   PLAYERS[player.id - 5] = player;
 
-   ARENA[player.x][player.y].changeType(2);
+   ARENA[player.x][player.y].changeType(player.id);
 
    return player;
 };
@@ -138,6 +141,7 @@ SOCKET.on('connection', function (socket) {
    var size = ARENA.length;
    var player = createPlayer();
 
+player.socket = socket;
    var arena = [];
    for (var i = 0; i < size; i++) {
       for (var j = 0; j < size; j++) {

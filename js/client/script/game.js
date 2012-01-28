@@ -1,5 +1,5 @@
 var GAME = (function initGame() {
-   var CELL = (function initCell() {
+   var CELL = function initCell() {
       return {
          type: -1,
 
@@ -21,11 +21,6 @@ var GAME = (function initGame() {
 
                break;
 
-               case 2:
-                  style += 'player';
-
-               break;
-
                case 3:
                   style += 'bomb';
 
@@ -36,14 +31,23 @@ var GAME = (function initGame() {
 
                break;
 
-               default:
-                  style = '';
+               case PLAYER_ID:
+			style += 'player';
+		break;
+
+		default:
+                  style += 'player';
             }
 
+		if (newType == PLAYER_ID) {
+			this.cell.style.backgroundColor = '#00FF00';
+		} else {
+			this.cell.style.backgroundColor = '';
+		}
             this.cell.className = style;
          }
       };
-   })();
+   };
 
    var SOCKET = (function initSocket() {
       var onUpdate = function onUpdate(message) {
@@ -59,8 +63,13 @@ var GAME = (function initGame() {
          }
       };
 
-      var SOCKET = io.connect('http://bomberbubi.herokuapp.com/sockets');
-      SOCKET.on('HELLO', function onHello(data) {
+      var SOCKET = io.connect('http://10.0.79.126/sockets');
+     
+SOCKET.on('KILL', function onKill(data) {
+window.location.reload(); 
+});
+	
+SOCKET.on('HELLO', function onHello(data) {
          PLAYER_ID = data.player_id;
 
          buildArena(data.size);
@@ -71,8 +80,6 @@ var GAME = (function initGame() {
 
       return {
          sendMovement: function sendMovement(deltaX, deltaY) {
-            console.log(PLAYER_ID);
-
             var message = {player_id: PLAYER_ID, deltaX: deltaX, deltaY: deltaY};
 
             SOCKET.emit('TRIGGER', message);
@@ -83,6 +90,9 @@ var GAME = (function initGame() {
    var ARENA;
    var SOCKET;
    var PLAYER_ID;
+	var COLOR_RED = Math.round(Math.random() * 255);
+	var COLOR_GREEN = Math.round(Math.random() * 255);
+	var COLOR_BLUE = Math.round(Math.random() * 255);
 
    var buildArena = function buildArena(size) {
       ARENA = [];
@@ -108,7 +118,7 @@ var GAME = (function initGame() {
             tbl.appendChild(tblBody);
             tbl.setAttribute("border", "1");
 
-            var cell = Object.create(CELL);
+            var cell = new CELL;
             cell.cell = tableCell;
             cell.changeType(0);
 
@@ -127,7 +137,7 @@ var GAME = (function initGame() {
 })();
 
 var onKeyUp = function onKeyUp(event) {
-   switch(event.keyCode) {
+switch(event.keyCode) {
       case 37:
          // left
          GAME.sendMovement(-1, 0);
@@ -154,11 +164,16 @@ var onKeyUp = function onKeyUp(event) {
 
       case 32:
          // space
+if (hold) return;   
          GAME.sendMovement(0, 0);
-   }
+  hold = true; 
+window.setTimeout("hold = false", 00);
+}
+
 };
 document.addEventListener("keyup", onKeyUp, false);
 
+var hold = false;
 document.onkeydown = function(e) {
    //Prevent scrolling
    if(e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
