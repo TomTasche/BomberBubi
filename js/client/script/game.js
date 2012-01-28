@@ -61,7 +61,7 @@ var GAME = (function initGame() {
             }
         };
 
-        var SOCKET = io.connect('http://bomberbubi.herokuapp.com/sockets');
+        var SOCKET = io.connect(window.location.href + 'sockets');
         SOCKET.on('KILL', function onKill(data) {
             window.location.reload();
         });
