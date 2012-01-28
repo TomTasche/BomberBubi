@@ -105,7 +105,7 @@ var ARENA = ARENA || (function initArena(size) {
     }
 
     return map;
-})(10);
+})(15);
 ARENA.placeBomb = placeBomb;
 
 module.exports = ARENA;
