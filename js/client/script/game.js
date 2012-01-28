@@ -1,184 +1,190 @@
 var GAME = (function initGame() {
-   var CELL = function initCell() {
-      return {
-         type: -1,
+    var CELL = function initCell() {
+        return {
+            type: -1,
 
-         cell: null,
+            cell: null,
 
-         changeType: function changeType(newType) {
-            this.type = newType;
+            changeType: function changeType(newType) {
+                this.type = newType;
 
-            var style = 'map_';
+                var style = 'map_';
 
-            switch(newType) {
-               case 0:
-                  style += 'path';
+                switch (newType) {
+                    case 0:
+                        style += 'path';
+    
+                        break;
+    
+                    case 1:
+                        style += 'wall';
+    
+                        break;
+    
+                    case 3:
+                        style += 'bomb';
+    
+                        break;
+    
+                    case 4:
+                        style += 'fire';
+    
+                        break;
+    
+                    case PLAYER_ID:
+                        style += 'player';
+                        
+                        break;
+    
+                    default:
+                        style += 'player';
+                }
 
-               break;
+                if (newType == PLAYER_ID) {
+                    this.cell.style.backgroundColor = '#00FF00';
+                } else {
+                    this.cell.style.backgroundColor = '';
+                }
+                
+                this.cell.className = style;
+            }
+        };
+    };
 
-               case 1:
-                  style += 'wall';
-
-               break;
-
-               case 3:
-                  style += 'bomb';
-
-               break;
-
-               case 4:
-                  style += 'fire';
-
-               break;
-
-               case PLAYER_ID:
-			style += 'player';
-		break;
-
-		default:
-                  style += 'player';
+    var SOCKET = (function initSocket() {
+        var onUpdate = function onUpdate(message) {
+            if (!ARENA) {
+                return;
             }
 
-		if (newType == PLAYER_ID) {
-			this.cell.style.backgroundColor = '#00FF00';
-		} else {
-			this.cell.style.backgroundColor = '';
-		}
-            this.cell.className = style;
-         }
-      };
-   };
+            var changes = message.changes;
+            for (var i = 0; i < changes.length; i++) {
+                var change = changes[i];
 
-   var SOCKET = (function initSocket() {
-      var onUpdate = function onUpdate(message) {
-         if (!ARENA) {
-            return;
-         }
+                ARENA[change.y][change.x].changeType(change.type);
+            }
+        };
 
-         var changes = message.changes;
-         for (var i = 0; i < changes.length; i++) {
-            var change = changes[i];
+        var SOCKET = io.connect('http://10.0.79.126/sockets');
 
-            ARENA[change.y][change.x].changeType(change.type);
-         }
-      };
+        SOCKET.on('KILL', function onKill(data) {
+            window.location.reload();
+        });
+        SOCKET.on('HELLO', function onHello(data) {
+            PLAYER_ID = data.player_id;
 
-      var SOCKET = io.connect('http://10.0.79.126/sockets');
-     
-SOCKET.on('KILL', function onKill(data) {
-window.location.reload(); 
-});
-	
-SOCKET.on('HELLO', function onHello(data) {
-         PLAYER_ID = data.player_id;
+            buildArena(data.size);
 
-         buildArena(data.size);
+            onUpdate(data);
+        });
+        SOCKET.on('UPDATE', onUpdate);
 
-         onUpdate(data);
-      });
-      SOCKET.on('UPDATE', onUpdate);
+        return {
+            sendMovement: function sendMovement(deltaX, deltaY) {
+                var message = {
+                    player_id: PLAYER_ID,
+                    deltaX: deltaX,
+                    deltaY: deltaY
+                };
 
-      return {
-         sendMovement: function sendMovement(deltaX, deltaY) {
-            var message = {player_id: PLAYER_ID, deltaX: deltaX, deltaY: deltaY};
+                SOCKET.emit('TRIGGER', message);
+            }
+        };
+    })();
 
-            SOCKET.emit('TRIGGER', message);
-         }
-      };
-   })();
+    var ARENA;
+    var SOCKET;
+    var PLAYER_ID;
 
-   var ARENA;
-   var SOCKET;
-   var PLAYER_ID;
-	var COLOR_RED = Math.round(Math.random() * 255);
-	var COLOR_GREEN = Math.round(Math.random() * 255);
-	var COLOR_BLUE = Math.round(Math.random() * 255);
+    var buildArena = function buildArena(size) {
+        ARENA = [];
 
-   var buildArena = function buildArena(size) {
-      ARENA = [];
+        var root = document.getElementById('game');
 
-      var root = document.getElementById('game');
+        var tbl = document.createElement("table");
+        tbl.id = 'game_table';
 
-      var tbl = document.createElement("table");
-      tbl.id = 'game_table';
+        var tblBody = document.createElement("tbody");
 
-      var tblBody = document.createElement("tbody");
+        for (var i = 0; i < size; i++) {
+            ARENA[i] = [];
 
-      for (var i = 0; i < size; i++) {
-         ARENA[i] = [];
+            var row = document.createElement("tr");
 
-         var row = document.createElement("tr");
+            for (var j = 0; j < size; j++) {
+                var tableCell = document.createElement("td");
+                row.appendChild(tableCell);
 
-         for (var j = 0; j < size; j++) {
-            var tableCell = document.createElement("td");
-            row.appendChild(tableCell);
+                tblBody.appendChild(row);
 
-            tblBody.appendChild(row);
+                tbl.appendChild(tblBody);
+                tbl.setAttribute("border", "1");
 
-            tbl.appendChild(tblBody);
-            tbl.setAttribute("border", "1");
+                var cell = new CELL;
+                cell.cell = tableCell;
+                cell.changeType(0);
 
-            var cell = new CELL;
-            cell.cell = tableCell;
-            cell.changeType(0);
+                ARENA[i][j] = cell;
+            }
+        }
 
-            ARENA[i][j] = cell;
-         }
-      }
+        root.appendChild(tbl);
+    };
 
-      root.appendChild(tbl);
-   };
-
-   return {
-      sendMovement: function sendMovement(deltaX, deltaY) {
-         SOCKET.sendMovement(deltaX, deltaY);
-      }
-   };
+    return {
+        sendMovement: function sendMovement(deltaX, deltaY) {
+            SOCKET.sendMovement(deltaX, deltaY);
+        }
+    };
 })();
 
+var hold = false;
 var onKeyUp = function onKeyUp(event) {
-switch(event.keyCode) {
-      case 37:
-         // left
-         GAME.sendMovement(-1, 0);
+    switch (event.keyCode) {
+        case 37:
+            // left
+            GAME.sendMovement(-1, 0);
 
-      break;
+            break;
 
-      case 38:
-         // up
-         GAME.sendMovement(0, -1);
+        case 38:
+            // up
+            GAME.sendMovement(0, -1);
 
-      break;
+            break;
 
-      case 39:
-         // right
-         GAME.sendMovement(1, 0);
+        case 39:
+            // right
+            GAME.sendMovement(1, 0);
 
-      break;
+            break;
 
-      case 40:
-         // down
-         GAME.sendMovement(0, 1);
+        case 40:
+            // down
+            GAME.sendMovement(0, 1);
 
-      break;
+            break;
 
-      case 32:
-         // space
-if (hold) return;   
-         GAME.sendMovement(0, 0);
-  hold = true; 
-window.setTimeout("hold = false", 00);
-}
-
+        case 32:
+            // space
+            if (hold) return;
+            hold = true;
+            
+            GAME.sendMovement(0, 0);
+            
+            // if you want to decrease the number of bombs placed in the game, upper the timeout
+            window.setTimeout("hold = false", 0);
+    }
 };
 document.addEventListener("keyup", onKeyUp, false);
 
-var hold = false;
 document.onkeydown = function(e) {
-   //Prevent scrolling
-   if(e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
-      e.preventDefault();
-      return false;
-   }
-   return true;
+    //Prevent scrolling
+    if (e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
+        e.preventDefault();
+        
+        return false;
+    }
+    
+    return true;
 };
