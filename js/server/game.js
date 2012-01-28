@@ -34,7 +34,7 @@ var placeObstacles = function placeObstacles() {
     var changes = [];
     var size = ARENA.length;
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < size * size / 2; i++) {
         changes.push(ARENA[random(size)][random(size)].changeType(1, true));
     }
 
