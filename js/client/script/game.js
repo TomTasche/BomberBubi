@@ -51,9 +51,7 @@ var GAME = (function initGame() {
 
     var SOCKET = (function initSocket() {
         var onUpdate = function onUpdate(message) {
-            if (!ARENA) {
-                return;
-            }
+            if (!ARENA) return;
 
             var changes = message.changes;
             for (var i = 0; i < changes.length; i++) {
@@ -63,7 +61,7 @@ var GAME = (function initGame() {
             }
         };
 
-        var SOCKET = io.connect('http://10.0.79.126/sockets');
+        var SOCKET = io.connect('http://bomberbubi.herokuapp.com/sockets');
         SOCKET.on('KILL', function onKill(data) {
             window.location.reload();
         });
