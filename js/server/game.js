@@ -28,6 +28,8 @@ var CELL = CELL || function initCell(x, y, type) {
 
 var placeObstacles = function placeObstacles() {
     var random = function random(size) {
+        size = size - 1;
+        
         return Math.round(Math.random() * size);
     };
     
