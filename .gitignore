@@ -1,3 +1,5 @@
 node_modules
 log.js
 npm-debug.log
+target
+.settings
