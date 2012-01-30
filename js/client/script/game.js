@@ -163,7 +163,9 @@ var GAME = (function initGame() {
             sendMovement(0, 0);
             
             // if you want to decrease the number of bombs placed in the game, upper the timeout
-            window.setTimeout("hold = false", 0);
+            window.setTimeout(function onToggleHold() {
+                hold = false;
+            }, 0);
         }
     };
     window.setInterval(checkInput, 500);
