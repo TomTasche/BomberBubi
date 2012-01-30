@@ -1,4 +1,4 @@
-package at.tomtasche.bomberbubi.java;
+package at.tomtasche.bomberbubi.java.common;
 
 
 public interface Actionable {

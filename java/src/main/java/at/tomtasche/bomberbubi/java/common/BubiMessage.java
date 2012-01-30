@@ -1,22 +1,17 @@
-package at.tomtasche.bomberbubi.java;
+package at.tomtasche.bomberbubi.java.common;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-
 public class BubiMessage {
 
-	private final static Gson GSON = new Gson();
-	
-	
 	public static BubiMessage fromJson(String s) {
-		return GSON.fromJson(s, BubiMessage.class);
+		return Json.GSON.fromJson(s, BubiMessage.class);
 	}
 	
 	public static String toJson(BubiMessage message) {
-		return GSON.toJson(message);
+		return Json.GSON.toJson(message);
 	}
 	
 	

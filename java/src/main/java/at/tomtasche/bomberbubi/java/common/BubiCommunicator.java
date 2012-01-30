@@ -1,4 +1,4 @@
-package at.tomtasche.bomberbubi.java;
+package at.tomtasche.bomberbubi.java.common;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Map;
+
 
 public class BubiCommunicator implements Runnable {
 
@@ -28,6 +29,8 @@ public class BubiCommunicator implements Runnable {
 
 	
 	public void send(BubiMessage message) throws IOException {
+		if (message == null) return;
+		
 		System.out.println("Sending action: " + BubiMessage.toJson(message));
 		
 		bufferedWriter.write(BubiMessage.toJson(message));
