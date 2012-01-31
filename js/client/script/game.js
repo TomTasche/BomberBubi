@@ -34,8 +34,6 @@ var GAME = (function initGame() {
     
                     default:
                         style += 'player';
-                        
-                        this.cell.innerText = newType;
                 }
 
                 if (newType == PLAYER_ID) {
@@ -63,13 +61,8 @@ var GAME = (function initGame() {
 
         var SOCKET = io.connect(window.location.href + 'sockets');
         SOCKET.on('KILL', function onKill(data) {
-            window.location.reload();
-        });
-        SOCKET.on('SCORE', function onScore(data) {
-            var scores = data.scores;
-            for (var i = 0; i < scores.length; i++) {
-                console.log((i + 5) + ' died ' + scores[i].score);
-            }
+            // window.location.reload();
+            console.log(data);
         });
         SOCKET.on('HELLO', function onHello(data) {
             PLAYER_ID = data.player_id;

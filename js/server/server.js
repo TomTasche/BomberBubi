@@ -18,22 +18,9 @@ HTTP = HTTP.createServer(function onRequest(request, response) {
     }
 
     uri = '/../client' + uri;
+    console.log('serving: ' + uri);
     STATIC.serveFile(uri, 200, {}, request, response);
-
-    /*console.log(uri);
-
-    FS.readFile(__dirname + '/../client' + uri, function(err, data) {
-        if (err) {
-            res.writeHead(500);
-            return res.end('Error loading ' + uri);
-        }
-
-        res.writeHead(200);
-        res.end(data);
-    });*/
 });
 HTTP.listen(process.env.PORT || 80);
-
-console.log('server running');
 
 module.exports = HTTP;
