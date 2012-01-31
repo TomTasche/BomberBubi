@@ -17,6 +17,7 @@ HTTP = HTTP.createServer(function onRequest(request, response) {
     }
 
     uri = '/../client' + uri;
+    console.log('serving: ' + uri);
     STATIC.serveFile(uri, 200, {}, request, response);
 });
 HTTP.listen(process.env.PORT || 80);

@@ -28,8 +28,9 @@ var PLAYER = function initPlayer() {
                 var coordinates = findEmptyPlace();
                 this.x = coordinates.x;
                 this.y = coordinates.y;
+                this.alive = true;
                 
-                changes.push(ARENA[this.x][this.y].changeType(this.id));
+                ARENA[this.x][this.y].changeType(this.id);
                 
                 return;
             }
