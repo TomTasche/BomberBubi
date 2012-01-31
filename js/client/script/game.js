@@ -34,8 +34,6 @@ var GAME = (function initGame() {
     
                     default:
                         style += 'player';
-                        
-                        this.cell.innerText = newType;
                 }
 
                 if (newType == PLAYER_ID) {

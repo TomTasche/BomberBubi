@@ -11,8 +11,7 @@ var CELL = CELL || function initCell(x, y, type) {
 
             if (enqueue) {
                 return this;
-            }
-            else {
+            } else {
                 var message = {
                     changes: [{
                         x: this.x,
@@ -43,9 +42,6 @@ var placeObstacles = function placeObstacles() {
     SOCKET.broadcast('UPDATE', {
         changes: changes
     });
-};
-var placeItems = function placeItems() {
-    // setInterval(placeItems);
 };
 var toggleFire = function toggleFire(x, y, state) {
     var changes = [];
