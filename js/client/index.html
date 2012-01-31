@@ -6,6 +6,7 @@
         <title>TomTasche/BomberBubi @ GitHub</title>
         
         <link rel="stylesheet" type="text/css" href="style/game.css" />
+        <link rel="stylesheet" type="text/css" href="style/css3-progress-bar.css">
         
         <script src="script/game.js" defer="defer"></script>
         <script src="socket.io/socket.io.js"></script>
@@ -72,8 +73,29 @@
                 Watch out! He's a <a href="http://en.wiktionary.org/wiki/Bube#German" alt="WTH is a \"bubi\"!?">bubi</a> with bombs.
             </div>
         
-            <div id="game"></div>
-        
+            <div id="game">
+            <p>
+                Please wait... We're busy placing bombs in front of your feet.
+                <div id="progress" class="progress rounded orange" style="width: 1%;"></div>
+                <script defer="defer">
+                    var i = 1;
+                    var doProgress = function doProgress() {
+                        var progress = document.getElementById('progress');
+                        if (progress) {
+                            if (i >= 100) i = 1;
+                            
+                            progress.style.width = i++ + '%';
+                        } else {
+                            window.clearInterval(doProgress);
+                        }
+                    };
+                    
+                    window.setInterval(doProgress, 500);
+                </script>
+                </p>
+                <br />
+            </div>
+            
             <h2>Authors</h2>
             <p>Thomas Taschauer (tomtasche@gmail.com)<br/></p>
         
