@@ -122,6 +122,7 @@ var GAME = (function initGame() {
             }
         }
 
+        root.innerHTML = '';
         root.appendChild(tbl);
     };
 
