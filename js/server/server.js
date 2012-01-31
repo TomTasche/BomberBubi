@@ -1,8 +1,7 @@
 var FS = FS || require('fs');
 var URL = URL || require("url");
-var HTTP = require('http');
-var STATIC = require('node-static');
-STATIC = new STATIC.Server(__dirname, {cache: 3600});
+var HTTP = HTTP || require('http');
+var STATIC = STATIC || new require('node-static').Server(__dirname, {cache: 3600});
 
 HTTP = HTTP.createServer(function onRequest(request, response) {
     var uri = URL.parse(request.url).pathname;
@@ -19,21 +18,7 @@ HTTP = HTTP.createServer(function onRequest(request, response) {
 
     uri = '/../client' + uri;
     STATIC.serveFile(uri, 200, {}, request, response);
-
-    /*console.log(uri);
-
-    FS.readFile(__dirname + '/../client' + uri, function(err, data) {
-        if (err) {
-            res.writeHead(500);
-            return res.end('Error loading ' + uri);
-        }
-
-        res.writeHead(200);
-        res.end(data);
-    });*/
 });
 HTTP.listen(process.env.PORT || 80);
-
-console.log('server running');
 
 module.exports = HTTP;

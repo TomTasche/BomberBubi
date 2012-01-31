@@ -1,7 +1,6 @@
 var ARENA = require('./game.js');
 var SOCKET = require('./socket.js');
 var PLAYERS = [];
-var LEADERBOARD = [];
 
 var PLAYER = function initPlayer() {
     var bombInHand;
@@ -20,17 +19,18 @@ var PLAYER = function initPlayer() {
             console.log('KILLED! because: ' + message);
 
             this.socket.emit('KILL', {
-                hi: 'hi'
-            });
-            
-            LEADERBOARD[this.id - 5] += 1;
-            SOCKET.broadcast('SCORE', {
-                scores: LEADERBOARD
+                cause: message
             });
         },
 
         move: function move(deltaX, deltaY) {
-            if (this.locked || !this.alive) {
+            if (!this.alive) {
+                var coordinates = findEmptyPlace();
+                this.x = coordinates.x;
+                this.y = coordinates.y;
+                
+                changes.push(ARENA[this.x][this.y].changeType(this.id));
+                
                 return;
             }
 
@@ -44,7 +44,7 @@ var PLAYER = function initPlayer() {
                 return;
             }
             if (ARENA[oldX][oldY].type != this.id) {
-                this.kill('locationcheck');
+                this.kill('weird location');
 
                 return;
             }
@@ -105,45 +105,59 @@ var PLAYER = function initPlayer() {
     };
 };
 
-var createPlayer = function createPlayer() {
+var findEmptyPlace = function findEmptyPlace() {
     var size = ARENA.length;
+    var result = {};
     
+    if (ARENA[0][0].type === 0) {
+        result.x = 0;
+        result.y = 0;
+    } else if (ARENA[size - 1][0].type === 0) {
+        result.x = size - 1;
+        result.y = 0;
+    } else if (ARENA[0][size - 1].type === 0) {
+        result.x = 0;
+        result.y = size - 1;
+    } else if (ARENA[size - 1][ARENA.length - 1].type === 0) {
+        result.x = size - 1;
+        result.y = size - 1;
+    } else {
+        while (!iterateMap(size, result)) {}
+    }
+    
+    return result;
+};
+
+var iterateMap = function iterateMap(size, result) {
+    for (var i = 0; i < size; i++) {
+        if (ARENA[i][0].type === 0) {
+            result.x = i;
+            result.y = 0;
+
+            return result;
+        }
+
+        if (ARENA[0][i].type === 0) {
+            result.x = 0;
+            result.y = i;
+
+            return result;
+        }
+    }
+    
+    return null;
+};
+
+var createPlayer = function createPlayer() {
     var player = new PLAYER();
     player.id = 5 + PLAYERS.length;
     PLAYERS.length += 1;
 
-    if (ARENA[0][0].type === 0) {
-        player.x = 0;
-        player.y = 0;
-    } else if (ARENA[size - 1][0].type === 0) {
-        player.x = size - 1;
-        player.y = 0;
-    } else if (ARENA[0][size - 1].type === 0) {
-        player.x = 0;
-        player.y = size - 1;
-    } else if (ARENA[size - 1][ARENA.length - 1].type === 0) {
-        player.x = size - 1;
-        player.y = size - 1;
-    } else {
-        for (var i = 0; i < size; i++) {
-            if (ARENA[i][0].type === 0) {
-                player.x = i;
-                player.y = 0;
-
-                break;
-            }
-
-            if (ARENA[0][i].type === 0) {
-                player.x = 0;
-                player.y = i;
-
-                break;
-            }
-        }
-    }
+    var coordinates = findEmptyPlace();
+    player.x = coordinates.x;
+    player.y = coordinates.y;
 
     PLAYERS[player.id - 5] = player;
-    LEADERBOARD[player.id - 5] = 0;
 
     ARENA[player.x][player.y].changeType(player.id);
 
