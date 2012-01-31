@@ -62,7 +62,6 @@ var GAME = (function initGame() {
         var SOCKET = io.connect(window.location.href + 'sockets');
         SOCKET.on('KILL', function onKill(data) {
             // window.location.reload();
-            console.log(data);
         });
         SOCKET.on('HELLO', function onHello(data) {
             PLAYER_ID = data.player_id;
