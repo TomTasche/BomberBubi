@@ -1,112 +1,71 @@
-var SOCKET = require('./socket.js');
+/*
+Copyright (C) 2012 Thomas Taschauer, <http://tomtasche.at/>.
 
-var CELL = CELL || function initCell(x, y, type) {
-    return {
-        x: x,
-        y: y,
-        type: type,
+This file is part of BomberBubi, <https://github.com/TomTasche/BomberBubi>.
 
-        changeType: function changeType(type, enqueue) {
-            this.type = type;
+BomberBubi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-            if (enqueue) {
-                return this;
-            } else {
-                var message = {
-                    changes: [{
-                        x: this.x,
-                        y: this.y,
-                        type: this.type
-                    }]
-                };
-                SOCKET.broadcast('UPDATE', message);
-            }
-        }
-    };
-};
+BomberBubi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-var placeObstacles = function placeObstacles() {
-    var random = function random(size) {
-        size = size - 1;
-        
-        return Math.round(Math.random() * size);
+You should have received a copy of the GNU General Public License
+along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+var Player = require('./player.js');
+
+var socket = require('./socket.js');
+
+module.exports = function initGame(room) {
+    var arena = new require('./arena.js')();
+    arena.placeObstacles();
+    
+    var players = [];
+    
+    var createPlayer = function createPlayer(socket) {
+        var player = new Player();
+        player.socket = socket;
+        player.id = 5 + players.length;
+        players.length += 1;
+    
+        var coordinates = arena.findEmptyPlace();
+        player.x = coordinates.x;
+        player.y = coordinates.y;
+    
+        players[player.id - 5] = player;
+    
+        arena.map[player.x][player.y].changeType(player.id);
+    
+        return player;
     };
     
-    var changes = [];
-    var size = ARENA.length;
-
-    for (var i = 0; i < size * size / 2; i++) {
-        changes.push(ARENA[random(size)][random(size)].changeType(1, true));
-    }
-
-    SOCKET.broadcast('UPDATE', {
-        changes: changes
-    });
-};
-var toggleFire = function toggleFire(x, y, state) {
-    var changes = [];
-    var size = ARENA.length;
-
-    changes.push(ARENA[x][y].changeType(state, true));
-
-    if (x + 1 < size) {
-        changes.push(ARENA[x + 1][y].changeType(state, true));
-    }
-    if (x + 2 < size) {
-        changes.push(ARENA[x + 2][y].changeType(state, true));
-    }
-    if (x - 1 >= 0) {
-        changes.push(ARENA[x - 1][y].changeType(state, true));
-    }
-    if (x - 2 >= 0) {
-        changes.push(ARENA[x - 2][y].changeType(state, true));
-    }
-    if (y + 1 < size) {
-        changes.push(ARENA[x][y + 1].changeType(state, true));
-    }
-    if (y + 2 < size) {
-        changes.push(ARENA[x][y + 2].changeType(state, true));
-    }
-    if (y - 1 >= 0) {
-        changes.push(ARENA[x][y - 1].changeType(state, true));
-    }
-    if (y - 2 >= 0) {
-        changes.push(ARENA[x][y - 2].changeType(state, true));
-    }
-
-    SOCKET.broadcast('UPDATE', {
-        changes: changes
-    });
-};
-var placeBomb = function placeBomb(x, y) {
-    setTimeout(function fireBomb() {
-        toggleFire(x, y, 4);
-
-        setTimeout(function clearFire() {
-            toggleFire(x, y, 0);
-        }, 1000);
-    }, 2500);
-};
-
-var ARENA = ARENA || (function initArena(size) {
-    var map = [];
-    map.length = size;
-
-    for (var i = 0; i < size; i += 1) {
-        map[i] = [];
-
-        for (var j = 0; j < size; j++) {
-            var cell = new CELL(i, j, 0);
-
-            map[i][j] = cell;
+    socket.on(room, 'connection', function(socket) {
+        var size = arena.size;
+        var player = createPlayer(socket);
+    
+        var map = [];
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < size; j++) {
+                var cell = arena.map[i][j];
+                if (cell.type !== 0) {
+                    map.push(cell);
+                }
+            }
         }
-    }
-
-    return map;
-})(13);
-ARENA.placeBomb = placeBomb;
-placeObstacles();
-
-module.exports = ARENA;
-
-var PLAYERS = PLAYERS || require('./player.js');
+    
+        var data = {
+            changes: map,
+            size: size,
+            player_id: player.id
+        };
+        socket.emit('HELLO', data);
+        socket.on('TRIGGER', function onTrigger(data) {
+            player.move(data.deltaX, data.deltaY);
+        });
+    });
+};

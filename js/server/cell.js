@@ -17,28 +17,16 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var fs = require('fs');
-var url = require("url");
-var http = require('http');
-var staticfs = require('node-static');
-staticfs = new staticfs.Server(__dirname, {cache: 3600});
+module.exports = function initCell(x, y, type) {
+    return {
+        x: x,
+        y: y,
+        type: type,
 
-http = http.createServer(function onRequest(request, response) {
-    var uri = url.parse(request.url).pathname;
-    if (uri == '/socket.io/socket.io.js') return;
-    if (uri.search('favicon.ico') >= 0) {
-      response.end(null, 404);
+        changeType: function changeType(type) {
+            this.type = type;
 
-      return;
-    }
-    
-    if (uri == '/') {
-        uri = '/index.html';
-    }
-
-    uri = '/../client' + uri;
-    staticfs.serveFile(uri, 200, {}, request, response);
-});
-http.listen(process.env.PORT || 80);
-
-module.exports = http;
+            return this;
+        }
+    };
+};

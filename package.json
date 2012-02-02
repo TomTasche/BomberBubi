@@ -8,13 +8,13 @@
         "type": "git",
         "url": "git://github.com/TomTasche/BomberBubi.git"
     },
-    "main": "./js/server/game.js",
+    "main": "./js/server/engine.js",
     "engines": {
         "node": "0.8"
     },
     "dependencies": {
         "socket.io": "0.8",
-	"node-static": "0.5.9"
+	    "node-static": "0.5.9"
     },
     "devDependencies": { }
 }

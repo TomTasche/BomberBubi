@@ -1,17 +1,36 @@
-var SERVER = SERVER || require('./server.js');
-var SOCKETIO = SOCKETIO || require('socket.io').listen(SERVER);
-SOCKETIO.set('log level', 1);
-SOCKETIO.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-SOCKETIO.enable('browser client minification');
-SOCKETIO.enable('browser client etag');
-SOCKETIO.enable('browser client cache');
-SOCKETIO.enable('browser client gzip');
+/*
+Copyright (C) 2012 Thomas Taschauer, <http://tomtasche.at/>.
 
-var broadcast = function broadcast(type, data) {
-    SOCKETIO.of('/sockets').emit(type, data);
+This file is part of BomberBubi, <https://github.com/TomTasche/BomberBubi>.
+
+BomberBubi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BomberBubi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+var server = require('./server.js');
+var socketio = require('socket.io').listen(server);
+socketio.set('log level', 1);
+socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+socketio.enable('browser client minification');
+socketio.enable('browser client etag');
+socketio.enable('browser client cache');
+socketio.enable('browser client gzip');
+
+var broadcast = function broadcast(room, type, data) {
+    socketio.of(room).emit(type, data);
 };
-var on = function on(type, callback) {
-    SOCKETIO.of('/sockets').on(type, callback);
+var on = function on(room, type, callback) {
+    socketio.of(room).on(type, callback);
 };
 
 module.exports = {

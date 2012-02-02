@@ -1,5 +1,5 @@
-var GAME = (function initGame() {
-    var CELL = function initCell() {
+(function initGame() {
+    var Cell = function initCell() {
         return {
             type: -1,
             cell: null,
@@ -30,13 +30,13 @@ var GAME = (function initGame() {
     
                         break;
     
-                    case PLAYER_ID:
+                    case playerId:
     
                     default:
                         style += 'player';
                 }
 
-                if (newType == PLAYER_ID) {
+                if (newType == playerId) {
                     this.cell.style.backgroundColor = '#00FF00';
                 } else {
                     this.cell.style.backgroundColor = '';
@@ -47,50 +47,50 @@ var GAME = (function initGame() {
         };
     };
 
-    var SOCKET = (function initSocket() {
+    var socket = (function initSocket() {
         var onUpdate = function onUpdate(message) {
-            if (!ARENA) return;
+            if (!arena) return;
 
             var changes = message.changes;
             for (var i = 0; i < changes.length; i++) {
                 var change = changes[i];
 
-                ARENA[change.y][change.x].changeType(change.type);
+                arena[change.y][change.x].changeType(change.type);
             }
         };
 
-        var SOCKET = io.connect(window.location.href + 'sockets');
-        SOCKET.on('KILL', function onKill(data) {
+        var socket = io.connect(window.location.href + 'sockets');
+        socket.on('KILL', function onKill(data) {
             // window.location.reload();
         });
-        SOCKET.on('HELLO', function onHello(data) {
-            PLAYER_ID = data.player_id;
+        socket.on('HELLO', function onHello(data) {
+            playerId = data.player_id;
 
             buildArena(data.size);
 
             onUpdate(data);
         });
-        SOCKET.on('UPDATE', onUpdate);
+        socket.on('UPDATE', onUpdate);
 
         return {
             sendMovement: function sendMovement(deltaX, deltaY) {
                 var message = {
-                    player_id: PLAYER_ID,
+                    player_id: playerId,
                     deltaX: deltaX,
                     deltaY: deltaY
                 };
 
-                SOCKET.emit('TRIGGER', message);
+                socket.emit('TRIGGER', message);
             }
         };
     })();
 
-    var ARENA;
-    var SOCKET;
-    var PLAYER_ID;
+    var arena;
+    var socket;
+    var playerId;
 
     var buildArena = function buildArena(size) {
-        ARENA = [];
+        arena = [];
 
         var root = document.getElementById('game');
 
@@ -100,7 +100,7 @@ var GAME = (function initGame() {
         var tblBody = document.createElement("tbody");
 
         for (var i = 0; i < size; i++) {
-            ARENA[i] = [];
+            arena[i] = [];
 
             var row = document.createElement("tr");
 
@@ -113,11 +113,11 @@ var GAME = (function initGame() {
                 tbl.appendChild(tblBody);
                 tbl.setAttribute("border", "1");
 
-                var cell = new CELL;
+                var cell = new Cell;
                 cell.cell = tableCell;
                 cell.changeType(0);
 
-                ARENA[i][j] = cell;
+                arena[i][j] = cell;
             }
         }
 
@@ -126,10 +126,10 @@ var GAME = (function initGame() {
     };
 
     var sendMovement = function sendMovement(deltaX, deltaY) {
-        SOCKET.sendMovement(deltaX, deltaY);
+        socket.sendMovement(deltaX, deltaY);
     }
 
-    var JOYSTICK = new VirtualJoystick({mouseSupport: true, container: document.getElementById('game')});
+    var joystick = new VirtualJoystick({mouseSupport: true, container: document.getElementById('game')});
     var isKeyActive = function isKeyActive(keys, name) {
         for (var i = 0; i < keys.length; i++) {
             if (keys[i] === name) return true;
@@ -141,13 +141,13 @@ var GAME = (function initGame() {
     var checkInput = function checkInput() {
         var keys = KeyboardJS.activeKeys();
 
-        if (JOYSTICK.left() || isKeyActive(keys, 'left')) {
+        if (joystick.left() || isKeyActive(keys, 'left')) {
             sendMovement(-1, 0);
-        } else if (JOYSTICK.up() || isKeyActive(keys, 'up')) {
+        } else if (joystick.up() || isKeyActive(keys, 'up')) {
             sendMovement(0, -1);
-        } else if (JOYSTICK.right() || isKeyActive(keys, 'right')) {
+        } else if (joystick.right() || isKeyActive(keys, 'right')) {
             sendMovement(1, 0);
-        } else if (JOYSTICK.down() || isKeyActive(keys, 'down')) {
+        } else if (joystick.down() || isKeyActive(keys, 'down')) {
             sendMovement(0, 1);
         } else if (isKeyActive(keys, 'space') || isKeyActive(keys, 'spacebar')) {
             if (hold) return;

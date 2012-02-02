@@ -1,8 +1,7 @@
-var ARENA = require('./game.js');
-var SOCKET = require('./socket.js');
-var PLAYERS = [];
+var arena = require('./game.js');
+var socket = require('./socket.js');
 
-var PLAYER = function initPlayer() {
+module.exports = function initPlayer() {
     var bombInHand;
 
     return {
@@ -10,6 +9,7 @@ var PLAYER = function initPlayer() {
         id: -1,
         x: -1,
         y: -1,
+        socket: null,
 
         kill: function kill(message) {
             this.alive = false;
@@ -25,12 +25,12 @@ var PLAYER = function initPlayer() {
 
         move: function move(deltaX, deltaY) {
             if (!this.alive) {
-                var coordinates = findEmptyPlace();
+                var coordinates = arena.findEmptyPlace();
                 this.x = coordinates.x;
                 this.y = coordinates.y;
                 this.alive = true;
                 
-                ARENA[this.x][this.y].changeType(this.id);
+                arena.map[this.x][this.y].changeType(this.id);
                 
                 return;
             }
@@ -39,12 +39,12 @@ var PLAYER = function initPlayer() {
             var oldY = this.y;
             var tempX = oldX + deltaX;
             var tempY = oldY + deltaY;
-            var size = ARENA.length;
+            var size = arena.size;
 
             if (oldX < 0 || oldY < 0 || tempX < 0 || tempX >= size || tempY < 0 || tempY >= size) {
                 return;
             }
-            if (ARENA[oldX][oldY].type != this.id) {
+            if (arena.map[oldX][oldY].type != this.id) {
                 this.kill('weird location');
 
                 return;
@@ -56,17 +56,17 @@ var PLAYER = function initPlayer() {
                 return;
             }
 
-            if (ARENA[oldX + deltaX][oldY + deltaY].type == 1 || ARENA[oldX + deltaX][oldY + deltaY].type == 3) {
+            if (arena.map[oldX + deltaX][oldY + deltaY].type == 1 || arena.map[oldX + deltaX][oldY + deltaY].type == 3) {
                 return;
             }
-            if (ARENA[oldX + deltaX][oldY + deltaY].type == 4) {
-                ARENA[oldX][oldY].changeType(0);
+            if (arena.map[oldX + deltaX][oldY + deltaY].type == 4) {
+                socket.broadcast('UPDATE', arena.map[oldX][oldY].changeType(0));
 
                 this.kill('fire');
 
                 return;
             }
-            if (ARENA[oldX + deltaX][oldY + deltaY].type > 4) {
+            if (arena.map[oldX + deltaX][oldY + deltaY].type > 4) {
                 return;
             }
 
@@ -80,19 +80,19 @@ var PLAYER = function initPlayer() {
             }
 
             if (this.x != oldX || this.y != oldY) {
-                changes.push(ARENA[this.x][this.y].changeType(this.id, true));
-                changes.push(ARENA[oldX][oldY].changeType(0, true));
+                changes.push(arena.map[this.x][this.y].changeType(this.id));
+                changes.push(arena.map[oldX][oldY].changeType(0));
 
                 if (bombInHand) {
-                    ARENA.placeBomb(bombInHand.x, bombInHand.y);
+                    arena.placeBomb(bombInHand.x, bombInHand.y);
 
-                    changes.push(ARENA[bombInHand.x][bombInHand.y].changeType(3, true));
+                    changes.push(arena.map[bombInHand.x][bombInHand.y].changeType(3));
 
                     bombInHand = null;
                 }
             }
 
-            SOCKET.broadcast('UPDATE', {
+            socket.broadcast('UPDATE', {
                 changes: changes
             });
         },
@@ -105,88 +105,3 @@ var PLAYER = function initPlayer() {
         }
     };
 };
-
-var findEmptyPlace = function findEmptyPlace() {
-    var size = ARENA.length;
-    var result = {};
-    
-    if (ARENA[0][0].type === 0) {
-        result.x = 0;
-        result.y = 0;
-    } else if (ARENA[size - 1][0].type === 0) {
-        result.x = size - 1;
-        result.y = 0;
-    } else if (ARENA[0][size - 1].type === 0) {
-        result.x = 0;
-        result.y = size - 1;
-    } else if (ARENA[size - 1][ARENA.length - 1].type === 0) {
-        result.x = size - 1;
-        result.y = size - 1;
-    } else {
-        while (!iterateMap(size, result)) {}
-    }
-    
-    return result;
-};
-
-var iterateMap = function iterateMap(size, result) {
-    for (var i = 0; i < size; i++) {
-        if (ARENA[i][0].type === 0) {
-            result.x = i;
-            result.y = 0;
-
-            return result;
-        }
-
-        if (ARENA[0][i].type === 0) {
-            result.x = 0;
-            result.y = i;
-
-            return result;
-        }
-    }
-    
-    return null;
-};
-
-var createPlayer = function createPlayer() {
-    var player = new PLAYER();
-    player.id = 5 + PLAYERS.length;
-    PLAYERS.length += 1;
-
-    var coordinates = findEmptyPlace();
-    player.x = coordinates.x;
-    player.y = coordinates.y;
-
-    PLAYERS[player.id - 5] = player;
-
-    ARENA[player.x][player.y].changeType(player.id);
-
-    return player;
-};
-
-SOCKET.on('connection', function(socket) {
-    var size = ARENA.length;
-    var player = createPlayer();
-
-    player.socket = socket;
-    var arena = [];
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            var cell = ARENA[i][j];
-            if (cell.type !== 0) {
-                arena.push(cell);
-            }
-        }
-    }
-
-    var map = {
-        changes: arena,
-        size: size,
-        player_id: player.id
-    };
-    socket.emit('HELLO', map);
-    socket.on('TRIGGER', function onTrigger(data) {
-        player.move(data.deltaX, data.deltaY);
-    });
-});
