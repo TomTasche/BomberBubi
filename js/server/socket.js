@@ -20,7 +20,7 @@ along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 var server = require('./server.js');
 var socketio = require('socket.io').listen(server);
 // socketio.set('log level', 1);
-// socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
 socketio.set('transports', ['htmlfile', 'xhr-polling', 'jsonp-polling']);
 socketio.enable('browser client minification');
 socketio.enable('browser client etag');
@@ -40,12 +40,16 @@ var on = function on(room, type, callback) {
 };
 
 on('/socket.io', 'connection', function onConnection(socket) {
-    socket.emit('HELLO', '');
+    console.log(JSON.stringify(socket.flags));
     
     socket.on('HELLO', function onSyn() {
+        console.log('hello');
+        
         for (var i = 0; i < connectionListeners.length; i++) {
             connectionListeners[i](socket);
         }
+        
+        socket.emit('HELLO', '');
     });
 });
 

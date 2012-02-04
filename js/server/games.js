@@ -44,6 +44,9 @@ var initGame = function initGame(room) {
     };
     
     var ackPlayer = function ackPlayer(socket) {
+        console.log(socket);
+        console.log(JSON.stringify(socket));
+        
         var size = arena.size;
         var player = createPlayer(socket);
         

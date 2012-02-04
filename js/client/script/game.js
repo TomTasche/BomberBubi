@@ -72,9 +72,11 @@
         });
         socket.on('UPDATE', onUpdate);
         socket.on('HELLO', function onHello(data) {
-            socket.emit('SYN', 'tomtasche.at');
+            socket.emit('SYN', '');
         });
-
+        
+        socket.emit('HELLO', '');
+        
         return {
             sendMovement: function sendMovement(deltaX, deltaY) {
                 var message = {
