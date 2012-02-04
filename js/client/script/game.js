@@ -59,11 +59,11 @@
             }
         };
 
-        var socket = io.connect(window.location.href + 'sockets');
+        var socket = io.connect('/socket.io');
         socket.on('KILL', function onKill(data) {
             // window.location.reload();
         });
-        socket.on('HELLO', function onHello(data) {
+        socket.on('ACK', function onHello(data) {
             playerId = data.player_id;
 
             buildArena(data.size);
@@ -71,6 +71,9 @@
             onUpdate(data);
         });
         socket.on('UPDATE', onUpdate);
+        socket.on('HELLO', function onHello(data) {
+            socket.emit('SYN', 'tomtasche.at');
+        });
 
         return {
             sendMovement: function sendMovement(deltaX, deltaY) {
@@ -129,7 +132,7 @@
         socket.sendMovement(deltaX, deltaY);
     }
 
-    var joystick = new VirtualJoystick({mouseSupport: true, container: document.getElementById('game')});
+    var joystick = new VirtualJoystick({mouseSupport: true, container: document.getElementById('mouse_control')});
     var isKeyActive = function isKeyActive(keys, name) {
         for (var i = 0; i < keys.length; i++) {
             if (keys[i] === name) return true;

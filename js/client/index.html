@@ -1,119 +1,170 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset='utf-8'>
-        
-        <title>BomberBubi</title>
-        
-        <link rel="stylesheet" type="text/css" href="style/game.css" />
-        <link rel="stylesheet" type="text/css" href="style/css3-progress-bar.css">
-        
-        <script src="script/game.js" defer="defer"></script>
-        <script src="socket.io/socket.io.js"></script>
-    	<script src="script/virtualjoystick.js"></script>
-    	<script src="script/keyboard.js"></script>
-        
-        <style type="text/css">
-            body {
-                margin-top: 1.0em;
-                background-color: #f50018;
-                font-family: Helvetica, Arial, FreeSans, san-serif;
-                color: #ffffff;
-            }
-            
-            #container {
-                margin: 0 auto;
-                width: 700px;
-            }
-            
-            h1 { font-size: 3.8em; color: blue; margin-bottom: 3px; }
-            h1 .small { font-size: 0.4em; }
-            h1 a { text-decoration: none }
-            h2 { font-size: 1.5em; color: blue; }
-            h3 { text-align: center; color: blue; }
-            a { color: blue; }
-            .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-            .download { float: right; }
-            pre { background: #000; color: #fff; padding: 15px;}
-            hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-            .footer { text-align:center; padding-top:30px; font-style: italic; }
-        </style>
-        
-        <script type="text/javascript">
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-10349252-23']);
-            _gaq.push(['_trackPageview']);
-            
-            (function() {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
-        </script>
-    </head>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    
+    <title>BomberBubi</title>
+    
+    <meta name="description" content="Watch out! He's a bubi with bombs.">
+    <meta name="author" content="Thomas Taschauer, tomtasche.at">
 
-    <body>
-        <a href="https://github.com/TomTasche/BomberBubi">
-            <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" />
-        </a>
-        
-        <div id="container">
-            <div class="download">
-                <a href="https://github.com/TomTasche/BomberBubi/zipball/master">
-                    <img border="0" width="90" src="https://github.com/images/modules/download/zip.png">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="bootstrap/docs/assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+    </style>
+    <link href="bootstrap/docs/assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Le fav and touch icons -->
+    <!--<link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">-->
+    
+    <link rel="stylesheet" type="text/css" href="style/game.css" />
+    <link rel="stylesheet" type="text/css" href="style/progress/css3-progress-bar.css">
+  </head>
+
+  <body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a href="https://github.com/TomTasche/BomberBubi">
+                    <img style="position: absolute; top: 10; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" />
                 </a>
-                <a href="https://github.com/TomTasche/BomberBubi/tarball/master">
-                    <img border="0" width="90" src="https://github.com/images/modules/download/tar.png">
+                
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
                 </a>
-            </div>
-        
-            <h1><a href="https://github.com/TomTasche/BomberBubi">BomberBubi</a></h1>
-        
-            <div class="description">
-                Watch out! He's a <a href="http://en.wiktionary.org/wiki/Bube#German" alt="WTH is a \"bubi\"!?">bubi</a> with bombs.
-            </div>
-        
-            <div id="game">
-            <p>
-                Please wait... We're busy placing bombs in front of your feet.
-                <div id="progress" class="progress rounded orange" style="width: 1%;"></div>
-                <script defer="defer">
-                    var i = 1;
-                    var doProgress = function doProgress() {
-                        var progress = document.getElementById('progress');
-                        if (progress) {
-                            if (i >= 100) i = 1;
-                            
-                            progress.style.width = i++ + '%';
-                        } else {
-                            window.clearInterval(doProgress);
-                        }
-                    };
-                    
-                    window.setInterval(doProgress, 500);
-                </script>
-                </p>
-                <br />
-            </div>
-            
-            <h2>Authors</h2>
-            <p>Thomas Taschauer (tomtasche@gmail.com)<br/></p>
-        
-            <h2>Download</h2>
-            <p>
-                You hate that it's running slow, looks ugly or doesn't behave the way you want it to? Heh. Fork it and tell me about your changes:<br />
-                You can download this project in either
-                <a href="https://github.com/TomTasche/BomberBubi/zipball/master">zip</a> or
-                <a href="https://github.com/TomTasche/BomberBubi/tarball/master">tar formats.
-            </p>
-            <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-                by running:
-                <pre>$ git clone git://github.com/TomTasche/BomberBubi</pre>
-            </p>
-        
-            <div class="footer">
-                get the source code on GitHub : <a href="https://github.com/TomTasche/BomberBubi">TomTasche/BomberBubi</a>
+                
+                <a class="brand" href="#">BomberBubi</a>
+                <div class="nav-collapse">
+                    <ul class="nav">
+                        <li class="active"><a href="#">Game</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#code">Code</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
             </div>
         </div>
-    </body>
+    </div>
+
+    <div class="container">
+        <!-- Main hero unit for a primary marketing message or call to action -->
+        <div class="hero-unit">
+            <h1>Hello, bubis!</h1>
+            
+            <div id="game">
+                <p>
+                    Please wait... We're busy placing bombs in front of your feet.
+                    <div id="progress" class="progress rounded orange" style="width: 1%;"></div>
+                    <script defer="defer">
+                        var i = 1;
+                        var doProgress = function doProgress() {
+                            var progress = document.getElementById('progress');
+                            if (progress) {
+                                if (i >= 100) i = 1;
+                                
+                                progress.style.width = i++ + '%';
+                            } else {
+                                window.clearInterval(doProgress);
+                            }
+                        };
+                        
+                        window.setInterval(doProgress, 500);
+                    </script>
+                </p>
+            </div>
+        </div>
+            
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="span4">
+                <h2>Pad</h2>
+                <p>Use the buttons below to move and bomb...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+            <div id="mouse_control" class="span4">
+                <h2>Touch / Mouse</h2>
+                <p>Touch or click here and drag into the direction you want to move...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+            <div class="span4">
+                <h2>Orientation</h2>
+                <p>This isn't yet available. Wait for the future...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+            <div class="span4">
+                <h2>.</h2>
+            </div>
+            <br />
+            <div class="span4">
+                <h2>Voice</h2>
+                <p>This isn't yet available. Wait for the future...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+            <div class="span4">
+                <h2>Mind</h2>
+                <p>This isn't yet available. Wait for the future...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+            <div class="span4">
+                <h2>Keyboard</h2>
+                <p>Use the arrow keys on your keyboard to move your bubi and press space to bomb away...</p>
+                <p><a class="btn" href="#">What? &raquo;</a></p>
+            </div>
+        </div>
+        
+        <hr>
+    
+        <footer>
+            <p>BomberBubi was built by Thomas Taschauer. Feel free to use the code in the spirit of open-source, but don't forget to give attribution where appropriate.</p>
+        </footer>
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="bootstrap/docs/assets/js/jquery.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-transition.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-alert.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-modal.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-dropdown.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-scrollspy.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-tab.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-tooltip.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-popover.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-button.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-collapse.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-carousel.js"></script>
+    <script src="bootstrap/docs/assets/js/bootstrap-typeahead.js"></script>
+    
+    <script src="script/game.js" defer="defer"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="script/joystick.js/virtualjoystick.js"></script>
+    <script src="script/keyboard.js/keyboard.js"></script>
+
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-10349252-23']);
+        _gaq.push(['_trackPageview']);
+        
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+  </body>
 </html>

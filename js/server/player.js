@@ -1,4 +1,4 @@
-var arena = require('./game.js');
+var games = require('./games.js');
 var socket = require('./socket.js');
 
 module.exports = function initPlayer() {
@@ -24,13 +24,16 @@ module.exports = function initPlayer() {
         },
 
         move: function move(deltaX, deltaY) {
+            var arena = games[this.socket.flags.room];
+            var map = arena.map;
+            
             if (!this.alive) {
                 var coordinates = arena.findEmptyPlace();
                 this.x = coordinates.x;
                 this.y = coordinates.y;
                 this.alive = true;
                 
-                arena.map[this.x][this.y].changeType(this.id);
+                map[this.x][this.y].changeType(this.id);
                 
                 return;
             }
@@ -41,10 +44,8 @@ module.exports = function initPlayer() {
             var tempY = oldY + deltaY;
             var size = arena.size;
 
-            if (oldX < 0 || oldY < 0 || tempX < 0 || tempX >= size || tempY < 0 || tempY >= size) {
-                return;
-            }
-            if (arena.map[oldX][oldY].type != this.id) {
+            if (oldX < 0 || oldY < 0 || tempX < 0 || tempX >= size || tempY < 0 || tempY >= size) return;
+            if (map[oldX][oldY].type != this.id) {
                 this.kill('weird location');
 
                 return;
@@ -56,17 +57,17 @@ module.exports = function initPlayer() {
                 return;
             }
 
-            if (arena.map[oldX + deltaX][oldY + deltaY].type == 1 || arena.map[oldX + deltaX][oldY + deltaY].type == 3) {
+            if (map[tempX][tempY].type == 1 || map[tempX][tempY].type == 3) {
                 return;
             }
-            if (arena.map[oldX + deltaX][oldY + deltaY].type == 4) {
-                socket.broadcast('UPDATE', arena.map[oldX][oldY].changeType(0));
+            if (map[tempX][tempY].type == 4) {
+                socket.broadcast(arena.room, 'UPDATE', map[oldX][oldY].changeType(0));
 
                 this.kill('fire');
 
                 return;
             }
-            if (arena.map[oldX + deltaX][oldY + deltaY].type > 4) {
+            if (map[oldX + deltaX][oldY + deltaY].type > 4) {
                 return;
             }
 
@@ -80,19 +81,19 @@ module.exports = function initPlayer() {
             }
 
             if (this.x != oldX || this.y != oldY) {
-                changes.push(arena.map[this.x][this.y].changeType(this.id));
-                changes.push(arena.map[oldX][oldY].changeType(0));
+                changes.push(map[this.x][this.y].changeType(this.id));
+                changes.push(map[oldX][oldY].changeType(0));
 
                 if (bombInHand) {
                     arena.placeBomb(bombInHand.x, bombInHand.y);
 
-                    changes.push(arena.map[bombInHand.x][bombInHand.y].changeType(3));
+                    changes.push(map[bombInHand.x][bombInHand.y].changeType(3));
 
                     bombInHand = null;
                 }
             }
 
-            socket.broadcast('UPDATE', {
+            socket.broadcast(arena.room, 'UPDATE', {
                 changes: changes
             });
         },

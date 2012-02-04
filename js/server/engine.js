@@ -17,6 +17,15 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var Game = require('./game.js');
+var socket = require('./socket.js');
+var games = require('./games.js');
 
-new Game('/socket.js');
+try {
+    socket.addConnectionListener(function onConnection(socket) {
+        console.log('create game for ' + socket.flags.endpoint);
+        
+        games.createGame(socket.flags.endpoint);
+    });
+} catch (e) {
+    console.error(e);
+}

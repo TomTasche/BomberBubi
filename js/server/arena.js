@@ -21,7 +21,7 @@ var socket = require('./socket.js');
 var Cell = require('./cell.js');
 
 var findEmptyPlace = function findEmptyPlace() {
-    var size = this.map.length;
+    var size = this.size;
     var result = {};
     
     if (this.map[0][0].type === 0) {
@@ -62,11 +62,13 @@ var iterateMap = function iterateMap(size, result) {
     return null;
 };
 var placeBomb = function placeBomb(x, y) {
+    var that = this;
+    
     setTimeout(function fireBomb() {
-        toggleFire(x, y, 4);
+        that.toggleFire(x, y, 4);
 
         setTimeout(function clearFire() {
-            toggleFire(x, y, 0);
+            that.toggleFire(x, y, 0);
         }, 1000);
     }, 2500);
 };
@@ -84,13 +86,13 @@ var placeObstacles = function placeObstacles() {
         changes.push(this.map[random(size)][random(size)].changeType(1));
     }
 
-    socket.broadcast('UPDATE', {
+    socket.broadcast(this.room, 'UPDATE', {
         changes: changes
     });
 };
 var toggleFire = function toggleFire(x, y, state) {
     var changes = [];
-    var size = this.map.length;
+    var size = this.size;
 
     changes.push(this.map[x][y].changeType(state));
 
@@ -119,14 +121,13 @@ var toggleFire = function toggleFire(x, y, state) {
         changes.push(this.map[x][y - 2].changeType(state));
     }
 
-    socket.broadcast('UPDATE', {
+    socket.broadcast(this.room, 'UPDATE', {
         changes: changes
     });
 };
 
-module.exports = function initArena(size) {
+module.exports = function initArena(size, room) {
     var map = [];
-    size = map.length;
 
     for (var i = 0; i < size; i += 1) {
         map[i] = [];
@@ -137,12 +138,14 @@ module.exports = function initArena(size) {
             map[i][j] = cell;
         }
     }
-
+    
     var arena = {};
     arena.map = map;
+    arena.room = room;
     arena.placeBomb = placeBomb;
     arena.placeObstacles = placeObstacles;
     arena.findEmptyPlace = findEmptyPlace;
+    arena.toggleFire = toggleFire;
     arena.size = size;
 
     return arena;

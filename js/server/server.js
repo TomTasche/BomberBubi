@@ -17,21 +17,30 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var fs = require('fs');
-var url = require("url");
+var url = require('url');
 var http = require('http');
+var routes = {};
 var staticfs = require('node-static');
 staticfs = new staticfs.Server(__dirname, {cache: 3600});
 
+var addRoute = function addRoute(uri, callback) {
+    routes[uri] = callback;
+};
+addRoute('/socket.io/socket.io.js', function onSocketIoStatic() {});
+addRoute('/favicon.ico', function onFavicon(request, response) {
+    response.end(null, 404);    
+});
+
 http = http.createServer(function onRequest(request, response) {
     var uri = url.parse(request.url).pathname;
-    if (uri == '/socket.io/socket.io.js') return;
-    if (uri.search('favicon.ico') >= 0) {
-      response.end(null, 404);
-
-      return;
-    }
     
+    var route = routes[uri];
+    if (route) {
+        route(request, response);
+        
+        return;
+    }
+
     if (uri == '/') {
         uri = '/index.html';
     }
@@ -39,6 +48,7 @@ http = http.createServer(function onRequest(request, response) {
     uri = '/../client' + uri;
     staticfs.serveFile(uri, 200, {}, request, response);
 });
-http.listen(process.env.PORT || 80);
+http.listen(process.env.PORT || process.env.C9_PORT || 80);
+http.addRoute = addRoute;
 
 module.exports = http;

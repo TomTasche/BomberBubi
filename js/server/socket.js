@@ -19,12 +19,18 @@ along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 
 var server = require('./server.js');
 var socketio = require('socket.io').listen(server);
-socketio.set('log level', 1);
-socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+// socketio.set('log level', 1);
+// socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+socketio.set('transports', ['htmlfile', 'xhr-polling', 'jsonp-polling']);
 socketio.enable('browser client minification');
 socketio.enable('browser client etag');
 socketio.enable('browser client cache');
-socketio.enable('browser client gzip');
+// socketio.enable('browser client gzip');
+
+var connectionListeners = [];
+var addConnectionListener = function addConnectionListener(callback) {
+    connectionListeners.push(callback);
+};
 
 var broadcast = function broadcast(room, type, data) {
     socketio.of(room).emit(type, data);
@@ -33,7 +39,18 @@ var on = function on(room, type, callback) {
     socketio.of(room).on(type, callback);
 };
 
+on('/socket.io', 'connection', function onConnection(socket) {
+    socket.emit('HELLO', '');
+    
+    socket.on('HELLO', function onSyn() {
+        for (var i = 0; i < connectionListeners.length; i++) {
+            connectionListeners[i](socket);
+        }
+    });
+});
+
 module.exports = {
     broadcast: broadcast,
-    on: on
+    on: on,
+    addConnectionListener: addConnectionListener
 };
