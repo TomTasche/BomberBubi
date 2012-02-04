@@ -44,8 +44,7 @@ var initGame = function initGame(room) {
     };
     
     var ackPlayer = function ackPlayer(socket) {
-        console.log(socket);
-        console.log(JSON.stringify(socket));
+        console.log(JSON.stringify(arena));
         
         var size = arena.size;
         var player = createPlayer(socket);
@@ -70,12 +69,12 @@ var initGame = function initGame(room) {
             player.move(data.deltaX, data.deltaY);
         });
     };
-    
-    socket.on(room, 'SYN', ackPlayer);
-    
-    console.log(room);
-    
+
+    arena.createPlayer = ackPlayer;
+
     games[room] = arena;
+    
+    return arena;
 };
 
 games.createGame = initGame;

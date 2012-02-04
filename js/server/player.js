@@ -24,7 +24,7 @@ module.exports = function initPlayer() {
         },
 
         move: function move(deltaX, deltaY) {
-            var arena = games[this.socket.flags.room];
+            var arena = games[this.socket.flags.endpoint];
             var map = arena.map;
             
             if (!this.alive) {

@@ -22,9 +22,17 @@ var games = require('./games.js');
 
 try {
     socket.addConnectionListener(function onConnection(socket) {
-        console.log('create game for ' + socket.flags.endpoint);
+        var room = socket.flags.endpoint;
+        var arena = games[room];
+        if (!arena) {
+            console.log('create game for ' + room);
+            arena = games.createGame(room);
+        }
         
-        games.createGame(socket.flags.endpoint);
+        socket.on('SYN', function onSyn(data) {
+            arena.createPlayer(socket, data);
+        });
+        socket.emit('HELLO', '');
     });
 } catch (e) {
     console.error(e);

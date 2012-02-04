@@ -50,8 +50,12 @@
     var socket = (function initSocket() {
         var onUpdate = function onUpdate(message) {
             if (!arena) return;
-
+            
             var changes = message.changes;
+            if (Object.prototype.toString.call(changes) != '[object Array]') {
+                changes = [].push(changes);
+            }
+            
             for (var i = 0; i < changes.length; i++) {
                 var change = changes[i];
 
@@ -74,8 +78,6 @@
         socket.on('HELLO', function onHello(data) {
             socket.emit('SYN', '');
         });
-        
-        socket.emit('HELLO', '');
         
         return {
             sendMovement: function sendMovement(deltaX, deltaY) {
@@ -135,44 +137,75 @@
     }
 
     var joystick = new VirtualJoystick({mouseSupport: true, container: document.getElementById('mouse_control')});
-    var isKeyActive = function isKeyActive(keys, name) {
-        for (var i = 0; i < keys.length; i++) {
-            if (keys[i] === name) return true;
-        }
-
-        return false;
-    }
-    var hold = false;
     var checkInput = function checkInput() {
-        var keys = KeyboardJS.activeKeys();
-
-        if (joystick.left() || isKeyActive(keys, 'left')) {
+        if (joystick.left()) {
             sendMovement(-1, 0);
-        } else if (joystick.up() || isKeyActive(keys, 'up')) {
+        } else if (joystick.up()) {
             sendMovement(0, -1);
-        } else if (joystick.right() || isKeyActive(keys, 'right')) {
+        } else if (joystick.right()) {
             sendMovement(1, 0);
-        } else if (joystick.down() || isKeyActive(keys, 'down')) {
+        } else if (joystick.down()) {
             sendMovement(0, 1);
-        } else if (isKeyActive(keys, 'space') || isKeyActive(keys, 'spacebar')) {
-            if (hold) return;
-            hold = true;
-
-            sendMovement(0, 0);
-            
-            // if you want to decrease the number of bombs placed in the game, upper the timeout
-            window.setTimeout(function onToggleHold() {
-                hold = false;
-            }, 0);
         }
     };
+    // decrease this timeout if you want to move faster using the joystick
     window.setInterval(checkInput, 500);
+    
+    var holdMovement = false;
+    var holdBomb = false;
+    var onKeyUp = function onKeyUp(event) {
+        if (holdMovement) return;
+        
+        switch (event.keyCode) {
+            case 37:
+                // left
+                sendMovement(-1, 0);
+    
+                break;
+    
+            case 38:
+                // up
+                sendMovement(0, -1);
+    
+                break;
+    
+            case 39:
+                // right
+                sendMovement(1, 0);
+    
+                break;
+    
+            case 40:
+                // down
+                sendMovement(0, 1);
 
-    document.addEventListener('keydown', checkInput);
+                break;
+    
+            case 32:
+                // space
+                if (holdBomb) return;
+                holdBomb = true;
+                
+                sendMovement(0, 0);
+                
+                // if you want to decrease the number of bombs placed in the game, upper this timeout
+                window.setTimeout(function toggleHold() {
+                    holdBomb = false;
+                }, 300);
+        }
+        
+        holdMovement = true;
+        
+        // if you want to decrease the game's speed, upper this timeout
+        window.setTimeout(function toggleHold() {
+            holdMovement = false;
+        }, 300);
+    };
+    document.addEventListener("keydown", onKeyUp, false);
 })();
 
 document.onkeydown = function(e) {
-    //Prevent scrolling
+    // prevent scrolling
     if (e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
         e.preventDefault();
         

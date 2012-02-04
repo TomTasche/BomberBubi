@@ -39,18 +39,11 @@ var on = function on(room, type, callback) {
     socketio.of(room).on(type, callback);
 };
 
+// socketio.sockets.on('connection', function onConnection(socket) {
 on('/socket.io', 'connection', function onConnection(socket) {
-    console.log(JSON.stringify(socket.flags));
-    
-    socket.on('HELLO', function onSyn() {
-        console.log('hello');
-        
-        for (var i = 0; i < connectionListeners.length; i++) {
-            connectionListeners[i](socket);
-        }
-        
-        socket.emit('HELLO', '');
-    });
+    for (var i = 0; i < connectionListeners.length; i++) {
+        connectionListeners[i](socket);
+    }
 });
 
 module.exports = {
