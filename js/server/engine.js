@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var socket = require('./socket.js');
+var sockets = require('./socket.js');
 var games = require('./games.js');
 
 try {
-    socket.addConnectionListener(function onConnection(socket) {
+    sockets.addConnectionListener(function onConnection(socket) {
         var room = socket.flags.endpoint;
         var arena = games[room];
         if (!arena) {

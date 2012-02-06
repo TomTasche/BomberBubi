@@ -9,4 +9,4 @@
 	url = https://github.com/RobertWHurst/KeyboardJS
 [submodule "js/client/bootstrap"]
     path = js/client/bootstrap
-    url = https://github.com/twitter/bootstrap/
+    url = https://github.com/twitter/bootstrap
