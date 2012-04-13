@@ -17,12 +17,10 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var socket = require('./socket.js');
 var games = {};
 
 var initGame = function initGame(room) {
     var arena = new require('./arena.js')(10, room);
-    arena.placeObstacles();
     
     var players = [];
     
@@ -44,8 +42,6 @@ var initGame = function initGame(room) {
     };
     
     var ackPlayer = function ackPlayer(socket) {
-        console.log(JSON.stringify(arena));
-        
         var size = arena.size;
         var player = createPlayer(socket);
         
@@ -64,7 +60,7 @@ var initGame = function initGame(room) {
             size: size,
             player_id: player.id
         };
-        socket.emit('ACK', data);
+        socket.emit('HELLO', data);
         socket.on('TRIGGER', function onTrigger(data) {
             player.move(data.deltaX, data.deltaY);
         });

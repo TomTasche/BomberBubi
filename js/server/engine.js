@@ -29,10 +29,7 @@ try {
             arena = games.createGame(room);
         }
         
-        socket.on('SYN', function onSyn(data) {
-            arena.createPlayer(socket, data);
-        });
-        socket.emit('HELLO', '');
+        arena.createPlayer(socket);
     });
 } catch (e) {
     console.error(e);

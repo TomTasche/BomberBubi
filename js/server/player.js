@@ -2,8 +2,6 @@ var games = require('./games.js');
 var socket = require('./socket.js');
 
 module.exports = function initPlayer() {
-    var bombInHand;
-
     return {
         alive: true,
         id: -1,
@@ -51,12 +49,6 @@ module.exports = function initPlayer() {
                 return;
             }
 
-            if (deltaX === 0 && deltaY === 0) {
-                this.bomb();
-
-                return;
-            }
-
             if (map[tempX][tempY].type == 1 || map[tempX][tempY].type == 3) {
                 return;
             }
@@ -83,26 +75,11 @@ module.exports = function initPlayer() {
             if (this.x != oldX || this.y != oldY) {
                 changes.push(map[this.x][this.y].changeType(this.id));
                 changes.push(map[oldX][oldY].changeType(0));
-
-                if (bombInHand) {
-                    arena.placeBomb(bombInHand.x, bombInHand.y);
-
-                    changes.push(map[bombInHand.x][bombInHand.y].changeType(3));
-
-                    bombInHand = null;
-                }
             }
 
             socket.broadcast(arena.room, 'UPDATE', {
                 changes: changes
             });
-        },
-
-        bomb: function bomb() {
-            bombInHand = {
-                x: this.x,
-                y: this.y
-            };
         }
     };
 };

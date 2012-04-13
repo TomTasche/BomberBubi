@@ -19,9 +19,8 @@ along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 
 var server = require('./server.js');
 var socketio = require('socket.io').listen(server);
-// socketio.set('log level', 1);
-socketio.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-socketio.set('transports', ['htmlfile', 'xhr-polling', 'jsonp-polling']);
+socketio.set('log level', 1);
+socketio.set('transports', ['websocket', 'xhr-polling', 'htmlfile', 'jsonp-polling']);
 socketio.enable('browser client minification');
 socketio.enable('browser client etag');
 socketio.enable('browser client cache');

@@ -1,3 +1,4 @@
+
 /*
 Copyright (C) 2012 Thomas Taschauer, <http://tomtasche.at/>.
 
@@ -17,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 */
 
-var socket = require('./socket.js');
 var Cell = require('./cell.js');
 
 var findEmptyPlace = function findEmptyPlace() {
@@ -61,70 +61,6 @@ var iterateMap = function iterateMap(size, result) {
     
     return null;
 };
-var placeBomb = function placeBomb(x, y) {
-    var that = this;
-    
-    setTimeout(function fireBomb() {
-        that.toggleFire(x, y, 4);
-
-        setTimeout(function clearFire() {
-            that.toggleFire(x, y, 0);
-        }, 1000);
-    }, 2500);
-};
-var placeObstacles = function placeObstacles() {
-    var random = function random(size) {
-        size = size - 1;
-        
-        return Math.round(Math.random() * size);
-    };
-    
-    var changes = [];
-    var size = this.map.length;
-
-    for (var i = 0; i < size * size / 2; i++) {
-        changes.push(this.map[random(size)][random(size)].changeType(1));
-    }
-
-    socket.broadcast(this.room, 'UPDATE', {
-        changes: changes
-    });
-};
-var toggleFire = function toggleFire(x, y, state) {
-    var changes = [];
-    var size = this.size;
-
-    changes.push(this.map[x][y].changeType(state));
-
-    if (x + 1 < size) {
-        changes.push(this.map[x + 1][y].changeType(state));
-    }
-    if (x + 2 < size) {
-        changes.push(this.map[x + 2][y].changeType(state));
-    }
-    if (x - 1 >= 0) {
-        changes.push(this.map[x - 1][y].changeType(state));
-    }
-    if (x - 2 >= 0) {
-        changes.push(this.map[x - 2][y].changeType(state));
-    }
-    if (y + 1 < size) {
-        changes.push(this.map[x][y + 1].changeType(state));
-    }
-    if (y + 2 < size) {
-        changes.push(this.map[x][y + 2].changeType(state));
-    }
-    if (y - 1 >= 0) {
-        changes.push(this.map[x][y - 1].changeType(state));
-    }
-    if (y - 2 >= 0) {
-        changes.push(this.map[x][y - 2].changeType(state));
-    }
-
-    socket.broadcast(this.room, 'UPDATE', {
-        changes: changes
-    });
-};
 
 module.exports = function initArena(size, room) {
     var map = [];
@@ -142,10 +78,7 @@ module.exports = function initArena(size, room) {
     var arena = {};
     arena.map = map;
     arena.room = room;
-    arena.placeBomb = placeBomb;
-    arena.placeObstacles = placeObstacles;
     arena.findEmptyPlace = findEmptyPlace;
-    arena.toggleFire = toggleFire;
     arena.size = size;
 
     return arena;
