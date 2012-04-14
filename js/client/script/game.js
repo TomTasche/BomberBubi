@@ -34,7 +34,7 @@
         }
         
         context.fillStyle = style;
-        context.fillRect(y * 20, x * 20, 10, 10);
+        context.fillRect(y * 60, x * 60, 50, 50);
     };
 
     var socket = (function initSocket() {
@@ -135,6 +135,7 @@
             holdMovement = false;
         }, 300);
     };
+    
     document.addEventListener("keydown", onKeyUp, false);
 })();
 
