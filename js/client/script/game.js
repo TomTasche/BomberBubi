@@ -1,8 +1,9 @@
 (function initGame() {
-    var changeType = function changeType(x, y, type) {
-        var canvas = document.getElementById('canvas');
-        var context = canvas.getContext('2d');
-        
+    var socket, playerId, buildArena, sendMovement, lockMovement = false, calculateGridDistance, calculatePlayerDistance,
+        calculateDistance, lockBomb = false, onKeyUp, toggleMovementLock, toggleBombLock, changeType,
+        canvas = document.getElementById('canvas'), context = canvas.getContext('2d');
+    
+    changeType = function changeType(x, y, type) {
         var style;
         switch (type) {
             case 0:
@@ -26,6 +27,9 @@
                 break;
 
             case playerId:
+                style = 'rgb(0, 255, 0)';
+                
+                break;
 
             default:
                 style = 'rgb(0, 0, 255)';
@@ -33,19 +37,22 @@
                 break;
         }
         
+        var yDistance = calculatePlayerDistance(y);
+        var xDistance = calculatePlayerDistance(x);
+        
         context.fillStyle = style;
-        context.fillRect(y * 60, x * 60, 50, 50);
+        context.fillRect(yDistance, xDistance, 50, 50);
     };
 
-    var socket = (function initSocket() {
+    socket = (function initSocket() {
         var onUpdate = function onUpdate(message) {
-            var changes = message.changes;
+            var changes = message.changes, change;
             if (Object.prototype.toString.call(changes) != '[object Array]') {
                 changes = [].push(changes);
             }
             
             for (var i = 0; i < changes.length; i++) {
-                var change = changes[i];
+                change = changes[i];
                 
                 changeType(change.y, change.x, change.type);
             }
@@ -74,21 +81,58 @@
         };
     })();
 
-    var socket;
-    var playerId;
-
-    var buildArena = function buildArena(size) {
-        // TODO?
+    calculateDistance = function(position) {
+        var distance = (position * 50) + (position * (10 + 1)) + (position * (3 + 1));
+        
+        return distance;
     };
 
-    var sendMovement = function sendMovement(deltaX, deltaY) {
-        socket.sendMovement(deltaX, deltaY);
-    }
+    calculatePlayerDistance = function(position) {
+        return 10 + calculateDistance(position);
+    };
+    
+    calculateGridDistance = function(position) {
+        return 2 + calculateDistance(position);
+    };
 
-    var holdMovement = false;
-    var holdBomb = false;
-    var onKeyUp = function onKeyUp(event) {
-        if (holdMovement) return;
+    buildArena = function buildArena(size) {
+        var length = calculateDistance(size) + 4, i = 0, distance = 0;
+        
+        canvas.width = length;
+        canvas.height = length;
+        
+        context.lineWidth = 3;
+        context.strokeStyle = "black";
+        context.beginPath();
+        
+        for (; i <= size; i++) {
+            distance = calculateGridDistance(i);
+            
+            context.moveTo(distance, 0);
+            context.lineTo(distance, length);
+            
+            context.moveTo(0, distance);
+            context.lineTo(length, distance);
+        }
+        
+        context.stroke();
+    };
+
+    sendMovement = function sendMovement(deltaX, deltaY) {
+        socket.sendMovement(deltaX, deltaY);
+    };
+    
+    toggleMovementLock = function toggleMovementLock() {
+        lockMovement = false;
+    };
+    
+    toggleBombLock = function toggleBombLock() {
+        lockBomb = false;
+    };
+
+    onKeyUp = function onKeyUp(event) {
+        if (lockMovement) return;
+        lockMovement = true;
         
         switch (event.keyCode) {
             case 37:
@@ -117,23 +161,17 @@
     
             case 32:
                 // space
-                if (holdBomb) return;
-                holdBomb = true;
+                if (lockBomb) return;
+                // holdBomb = true;
                 
                 sendMovement(0, 0);
                 
-                // if you want to decrease the number of bombs placed in the game, upper this timeout
-                window.setTimeout(function toggleHold() {
-                    holdBomb = false;
-                }, 300);
+                /* // if you want to decrease the number of bombs placed in the game, upper this timeout
+                window.setTimeout(toggleBombLock, 500);*/
         }
         
-        holdMovement = true;
-        
         // if you want to decrease the game's speed, upper this timeout
-        window.setTimeout(function toggleHold() {
-            holdMovement = false;
-        }, 300);
+        window.setTimeout(toggleMovementLock, 400);
     };
     
     document.addEventListener("keydown", onKeyUp, false);
@@ -141,7 +179,7 @@
 
 document.onkeydown = function(e) {
     // prevent scrolling
-    if (e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 32) {
+    if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 32) {
         e.preventDefault();
         
         return false;
