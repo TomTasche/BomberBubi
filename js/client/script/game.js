@@ -163,16 +163,6 @@
 
 		case 32:
 			// space
-			if (lockBomb)
-				return;
-			// holdBomb = true;
-
-			sendMovement(0, 0);
-
-			/*
-			 * // if you want to decrease the number of bombs placed in the
-			 * game, upper this timeout window.setTimeout(toggleBombLock, 500);
-			 */
 		}
 
 		lastMovement = null;
