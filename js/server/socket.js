@@ -19,12 +19,14 @@ along with BomberBubi. If not, see <http://www.gnu.org/licenses/>.
 
 var server = require('./server.js');
 var socketio = require('socket.io').listen(server);
-socketio.set('log level', 1);
 socketio.set('transports', ['websocket', 'xhr-polling', 'htmlfile', 'jsonp-polling']);
+// upper to 3 on cloud9
+socketio.set('log level', 1);
+// disable on cloud9
+// socketio.enable('browser client gzip');
 socketio.enable('browser client minification');
 socketio.enable('browser client etag');
 socketio.enable('browser client cache');
-// socketio.enable('browser client gzip');
 
 var connectionListeners = [];
 var addConnectionListener = function addConnectionListener(callback) {
@@ -38,7 +40,6 @@ var on = function on(room, type, callback) {
     socketio.of(room).on(type, callback);
 };
 
-// socketio.sockets.on('connection', function onConnection(socket) {
 on('/socket.io', 'connection', function onConnection(socket) {
     for (var i = 0; i < connectionListeners.length; i++) {
         connectionListeners[i](socket);

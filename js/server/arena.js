@@ -33,25 +33,25 @@ var findEmptyPlace = function findEmptyPlace() {
     } else if (this.map[0][size - 1].type === 0) {
         result.x = 0;
         result.y = size - 1;
-    } else if (this.map[size - 1][this.map.length - 1].type === 0) {
+    } else if (this.map[size - 1][size - 1].type === 0) {
         result.x = size - 1;
         result.y = size - 1;
     } else {
-        while (!iterateMap(size, result)) {}
+        while (!iterateMap(this.map, size, result)) {}
     }
     
     return result;
 };
-var iterateMap = function iterateMap(size, result) {
+var iterateMap = function iterateMap(map, size, result) {
     for (var i = 0; i < size; i++) {
-        if (this.map[i][0].type === 0) {
+        if (map[i][0].type === 0) {
             result.x = i;
             result.y = 0;
 
             return result;
         }
 
-        if (this.map[0][i].type === 0) {
+        if (map[0][i].type === 0) {
             result.x = 0;
             result.y = i;
 
