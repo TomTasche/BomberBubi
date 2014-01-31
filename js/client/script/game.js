@@ -168,14 +168,14 @@
                 /* // if you want to decrease the number of bombs placed in the game, upper this timeout
                 window.setTimeout(toggleBombLock, 500);*/
         }
+        
+        lastMovement = null;
     };
 
     onKeyUp = function onKeyUp(event) {
         // prevent scrolling
         if (event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 32) {
         	event.preventDefault();
-            
-            return false;
         }
         
         lastMovement = event;
