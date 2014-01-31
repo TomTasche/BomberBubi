@@ -172,8 +172,8 @@
 
     onKeyUp = function onKeyUp(event) {
         // prevent scrolling
-        if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 32) {
-            e.preventDefault();
+        if (event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 32) {
+        	event.preventDefault();
             
             return false;
         }
