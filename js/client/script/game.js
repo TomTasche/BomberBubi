@@ -1,6 +1,6 @@
 (function initGame() {
-    var socket, playerId, buildArena, sendMovement, lastMovement, calculateGridDistance, calculatePlayerDistance,
-        calculateDistance, lockBomb = false, onKeyUp, makeMove, toggleBombLock, changeType,
+    var socket, playerId, buildArena, sendMovement, lockMovement, lastMovement, calculateGridDistance, calculatePlayerDistance,
+        calculateDistance, lockBomb, onKeyUp, makeMove, toggleBombLock, changeType,
         canvas = document.getElementById('canvas'), context = canvas.getContext('2d');
     
     changeType = function changeType(x, y, type) {
@@ -55,6 +55,10 @@
                 change = changes[i];
                 
                 changeType(change.y, change.x, change.type);
+                
+                if (change.type = playerId) {
+                	lockMovement = false;
+                }
             }
         };
 
@@ -122,16 +126,15 @@
         socket.sendMovement(deltaX, deltaY);
     };
     
-    toggleMovementLock = function toggleMovementLock() {
-        lockMovement = false;
-    };
-    
     toggleBombLock = function toggleBombLock() {
         lockBomb = false;
     };
     
     makeMove = function makeMove() {
     	if (!lastMovement) return;
+    	
+    	if (lockMovement) return;
+    	lockMovement = true;
     	
         switch (lastMovement.keyCode) {
             case 37:
