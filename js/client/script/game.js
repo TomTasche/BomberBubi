@@ -163,6 +163,9 @@
 
 		case 32:
 			// space
+
+		default:
+			lockMovement = false;
 		}
 
 		lastMovement = null;

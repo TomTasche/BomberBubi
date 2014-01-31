@@ -42,7 +42,7 @@ http = http.createServer(function onRequest(request, response) {
     }
 
     if (uri == '/') {
-        uri = '/test.html';
+        uri = '/index.html';
     }
 
     uri = '/../client' + uri;
