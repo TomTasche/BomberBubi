@@ -1,6 +1,6 @@
 (function initGame() {
-    var socket, playerId, buildArena, sendMovement, lockMovement = false, calculateGridDistance, calculatePlayerDistance,
-        calculateDistance, lockBomb = false, onKeyUp, toggleMovementLock, toggleBombLock, changeType,
+    var socket, playerId, buildArena, sendMovement, lastMovement, calculateGridDistance, calculatePlayerDistance,
+        calculateDistance, lockBomb = false, onKeyUp, makeMove, toggleBombLock, changeType,
         canvas = document.getElementById('canvas'), context = canvas.getContext('2d');
     
     changeType = function changeType(x, y, type) {
@@ -129,12 +129,11 @@
     toggleBombLock = function toggleBombLock() {
         lockBomb = false;
     };
-
-    onKeyUp = function onKeyUp(event) {
-        if (lockMovement) return;
-        lockMovement = true;
-        
-        switch (event.keyCode) {
+    
+    makeMove = function makeMove() {
+    	if (!lastMovement) return;
+    	
+        switch (lastMovement.keyCode) {
             case 37:
                 // left
                 sendMovement(-1, 0);
@@ -169,21 +168,22 @@
                 /* // if you want to decrease the number of bombs placed in the game, upper this timeout
                 window.setTimeout(toggleBombLock, 500);*/
         }
+    };
+
+    onKeyUp = function onKeyUp(event) {
+        // prevent scrolling
+        if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 32) {
+            e.preventDefault();
+            
+            return false;
+        }
         
-        // if you want to decrease the game's speed, upper this timeout
-        window.setTimeout(toggleMovementLock, 400);
+        lastMovement = event;
+        
+        return true;
     };
     
     document.addEventListener("keydown", onKeyUp, false);
-})();
-
-document.onkeydown = function(e) {
-    // prevent scrolling
-    if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 32) {
-        e.preventDefault();
-        
-        return false;
-    }
     
-    return true;
-};
+    window.setInterval(makeMove, 400);
+})();
