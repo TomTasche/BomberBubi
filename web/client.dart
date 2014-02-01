@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 
-import 'arena.dart';
-import 'bubi.dart';
+import 'arena_canvas.dart';
+import '../lib/bubi.dart';
 
 class Client {
   static const Duration RECONNECT_DELAY = const Duration(milliseconds: 500);
@@ -15,14 +15,14 @@ class Client {
   
   var playerId;
   
-  Arena arena;
+  ArenaCanvas arena;
 
   Client() {
     connect();
  
     window.onKeyDown.listen(onKeyEvent);
     
-    arena = new Arena();
+    arena = new ArenaCanvas();
     arena.redraw();
   }
   
@@ -81,8 +81,10 @@ class Client {
         var y = json['y'];
         var playerId = json['playerId'];
         
-        arena.addBubi(new Bubi(playerId, x, y));
-        arena.redraw();
+        if (arena.getBubiForId(playerId) == null) {
+          arena.addBubi(new Bubi(playerId, x, y));
+          arena.redraw();
+        }
         
         break;
       
@@ -90,17 +92,11 @@ class Client {
         var deltaX = json['deltaX'];
         var deltaY = json['deltaY'];
         var playerId = json['playerId'];
-        
-        var bubis = arena.bubis;
-        for (Bubi bubi in bubis) {
-          if (this.playerId != playerId) return;
+
+        var bubi = arena.getBubiForId(playerId);
+        bubi.x += deltaX;
+        bubi.y += deltaY;
           
-          bubi.x += deltaX;
-          bubi.y += deltaY;
-          
-          break;
-        }
-        
         arena.redraw();
         
         break;

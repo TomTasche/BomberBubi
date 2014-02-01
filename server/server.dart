@@ -1,5 +1,3 @@
-library bomberman;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -8,11 +6,16 @@ import 'package:http_server/http_server.dart' as Http;
 import 'package:route/server.dart' show Router;
 import 'package:logging/logging.dart' show Logger, Level, LogRecord;
 
+import '../lib/bubi.dart';
+import '../lib/arena.dart';
+
 final Logger LOGGER = new Logger('BomberBubi');
 
 var id = 1;
 
 List<WebSocket> sockets = new List<WebSocket>();
+
+Arena arena = new Arena();
 
 void filterSockets() {
   for (WebSocket socket in sockets) {
@@ -30,6 +33,19 @@ void broadcast(var request) {
   }
 }
 
+void broadcastPlayers() {
+  for (Bubi bubi in arena.bubis) {
+    var request = {
+      'response': 'newPlayer',
+      'playerId': bubi.id,
+      'x': bubi.x,
+      'y': bubi.y
+    };
+    
+    broadcast(request);
+  }
+}
+
 void handleWebSocket(WebSocket socket) {
   LOGGER.info('new web-socket connection opened');
   
@@ -41,23 +57,19 @@ void handleWebSocket(WebSocket socket) {
       var request = json['request'];
       switch (request) {
         case 'login':
-          var request = {
-            'response': 'login',
-            'playerId': id
-          };
+          Bubi bubi = new Bubi(id, 0, 0);
+          arena.addBubi(bubi);
           
           id++;
           
+          var request = {
+            'response': 'login',
+            'playerId': bubi.id
+          };
+          
           socket.add(JSON.encode(request));
 
-          request = {
-            'response': 'newPlayer',
-            'playerId': id,
-            'x': 0,
-            'y': 0
-          };
-
-          broadcast(request);
+          broadcastPlayers();
           
           break;
           
@@ -105,7 +117,11 @@ void handleWebSocket(WebSocket socket) {
             'playerId': playerId
           };
           
-          socket.add(JSON.encode(response));
+          Bubi bubi = arena.getBubiForId(playerId);
+          bubi.x += deltaX;
+          bubi.y += deltaY;
+          
+          broadcast(response);
           
           break;
 

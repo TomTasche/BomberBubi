@@ -1,21 +1,17 @@
 import 'dart:html';
 
-import 'bubi.dart';
+import '../lib/arena.dart';
+import '../lib/bubi.dart';
 
-class Arena {
+class ArenaCanvas extends Arena {
   
   CanvasElement canvas;
   var context;
-  var size;
   
-  List<Bubi> bubis = new List<Bubi>();
-  
-  Arena() {
+  ArenaCanvas() : super() {
     canvas = querySelector('#canvas');
 
     context = canvas.context2D;
-    
-    size = 10;
   }
   
   void redraw() {
@@ -51,10 +47,6 @@ class Arena {
     }
 
     context.stroke();
-  }
-  
-  void addBubi(Bubi newBub) {
-    bubis.add(newBub);
   }
   
   calculateDistance(position) {
