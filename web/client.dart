@@ -6,14 +6,12 @@ import 'arena_canvas.dart';
 import '../lib/bubi.dart';
 
 class Client {
-  static const Duration RECONNECT_DELAY = const Duration(milliseconds: 500);
-
   bool connectPending = false;
   WebSocket webSocket;
 
   DivElement resultsElement = querySelector('#results');
   
-  var playerId;
+  int playerId;
   
   ArenaCanvas arena;
 
@@ -63,8 +61,8 @@ class Client {
   void onDisconnected() {
     if (connectPending) return;
     connectPending = true;
-    
-    new Timer(RECONNECT_DELAY, connect);
+
+    // TODO: reload page
   }
 
   void onMessage(data) {
