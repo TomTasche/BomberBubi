@@ -26,7 +26,7 @@ void filterSockets() {
 }
 
 void broadcast(var request) {
-  filterSockets();
+  // filterSockets();
   
   for (WebSocket socket in sockets) {
     socket.add(JSON.encode(request));
@@ -148,7 +148,7 @@ void main() {
   }
 
   int port = 9223;
-  HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, port).then((server) {
+  HttpServer.bind(InternetAddress.ANY_IP_V4, port).then((server) {
     LOGGER.info("server is running on "
              "'http://${server.address.address}:$port/'");
 

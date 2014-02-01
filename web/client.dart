@@ -6,10 +6,14 @@ import 'arena_canvas.dart';
 import '../lib/bubi.dart';
 
 class Client {
+  static const Duration BATTLEFIELD_TICK_RATE = const Duration(milliseconds: 250);
+  
   bool connectPending = false;
   WebSocket webSocket;
 
   DivElement resultsElement = querySelector('#results');
+  
+  int lastKeyCode = 0;
   
   int playerId;
   
@@ -71,6 +75,8 @@ class Client {
     switch (response) {
       case 'login':
         playerId = json['playerId'];
+        
+        new Timer.periodic(BATTLEFIELD_TICK_RATE, sendLastKeyCode);
 
         break;
         
@@ -104,8 +110,11 @@ class Client {
     }
   }
   
-  void onKeyEvent(KeyboardEvent event) {
-    switch(event.keyCode){
+  void sendLastKeyCode(Timer timer) {
+    if (lastKeyCode <= 0) return;
+    if (playerId == null) return;
+    
+    switch(lastKeyCode){
       case 37:
         // left
         break;
@@ -125,14 +134,18 @@ class Client {
         return;
     }
     
-    if (playerId == null) return;
-    
     var request = {
       'request': 'movement',
-      'keyCode': event.keyCode,
+      'keyCode': lastKeyCode,
       'playerId': playerId
     };
     webSocket.send(JSON.encode(request));
+    
+    lastKeyCode = 0;
+  }
+  
+  void onKeyEvent(KeyboardEvent event) {
+    lastKeyCode = event.keyCode;
   }
 }
 
