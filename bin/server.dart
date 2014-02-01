@@ -12,8 +12,28 @@ final Logger LOGGER = new Logger('BomberBubi');
 
 var id = 1;
 
+List<WebSocket> sockets = new List<WebSocket>();
+
+void filterSockets() {
+  for (WebSocket socket in sockets) {
+    if (socket.readyState != WebSocket.OPEN) {
+      sockets.remove(socket);
+    }
+  }
+}
+
+void broadcast(var request) {
+  filterSockets();
+  
+  for (WebSocket socket in sockets) {
+    socket.add(JSON.encode(request));
+  }
+}
+
 void handleWebSocket(WebSocket socket) {
-  LOGGER.info('another new new web-socket connection opened');
+  LOGGER.info('new web-socket connection opened');
+  
+  sockets.add(socket);
 
   socket
     .map((string) => JSON.decode(string))
@@ -29,15 +49,15 @@ void handleWebSocket(WebSocket socket) {
           id++;
           
           socket.add(JSON.encode(request));
-          
+
           request = {
             'response': 'newPlayer',
             'playerId': id,
             'x': 0,
             'y': 0
           };
-          
-          socket.add(JSON.encode(request));
+
+          broadcast(request);
           
           break;
           
@@ -94,6 +114,8 @@ void handleWebSocket(WebSocket socket) {
       }
     }, onError: (error) {
       LOGGER.warning('Bad WebSocket request');
+      
+      sockets.remove(socket);
     });
 }
 

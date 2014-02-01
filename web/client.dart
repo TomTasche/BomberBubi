@@ -34,14 +34,14 @@ class Client {
       onConnected();
       
       webSocket.onClose.first.then((_) {
-        // print("Connection disconnected to ${webSocket.url}");
+        print("Connection disconnected to ${webSocket.url}");
         
         onDisconnected();
       });
     });
     
     webSocket.onError.first.then((_) {
-      // print("Failed to connect to ${webSocket.url}. Please run bin/server.dart and try again.");
+      print("Failed to connect to ${webSocket.url}. Please run bin/server.dart and try again.");
       
       onDisconnected();
     });
