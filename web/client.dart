@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 
+import 'arena.dart';
+import 'bubi.dart';
+
 class Client {
   static const Duration RECONNECT_DELAY = const Duration(milliseconds: 500);
 
@@ -9,39 +12,52 @@ class Client {
   WebSocket webSocket;
 
   DivElement resultsElement = querySelector('#results');
+  
+  var playerId;
+  
+  Arena arena;
 
   Client() {
     connect();
  
     window.onKeyDown.listen(onKeyEvent);
+    
+    arena = new Arena();
+    arena.redraw();
   }
   
   void connect() {
     connectPending = false;
     
-    webSocket = new WebSocket('ws://${Uri.base.host}:${Uri.base.port}/ws');
+    webSocket = new WebSocket('ws://${Uri.base.host}:9223/ws');
     webSocket.onOpen.first.then((_) {
       onConnected();
       
       webSocket.onClose.first.then((_) {
-        print("Connection disconnected to ${webSocket.url}");
+        // print("Connection disconnected to ${webSocket.url}");
         
         onDisconnected();
       });
     });
     
     webSocket.onError.first.then((_) {
-      print("Failed to connect to ${webSocket.url}. "
-            "Please run bin/server.dart and try again.");
+      // print("Failed to connect to ${webSocket.url}. Please run bin/server.dart and try again.");
       
       onDisconnected();
     });
   }
 
   void onConnected() {
+    arena.redraw();
+    
     webSocket.onMessage.listen((e) {
       onMessage(e.data);
     });
+    
+    var request = {
+      'request': 'login'
+    };
+    webSocket.send(JSON.encode(request));
   }
 
   void onDisconnected() {
@@ -51,18 +67,41 @@ class Client {
     new Timer(RECONNECT_DELAY, connect);
   }
 
-  void setStatus(String status) {
-    resultsElement.appendText(status);
-    resultsElement.appendHtml("<br />");
-  }
-
   void onMessage(data) {
     var json = JSON.decode(data);
     var response = json['response'];
     switch (response) {
-      case 'movementResult':
-        var keyCode = json['keyCode'];
-        setStatus("pressed key #$keyCode");
+      case 'login':
+        playerId = json['playerId'];
+
+        break;
+        
+      case 'newPlayer':
+        var x = json['x'];
+        var y = json['y'];
+        var playerId = json['playerId'];
+        
+        arena.addBubi(new Bubi(playerId, x, y));
+        arena.redraw();
+        
+        break;
+      
+      case 'movement':
+        var deltaX = json['deltaX'];
+        var deltaY = json['deltaY'];
+        var playerId = json['playerId'];
+        
+        var bubis = arena.bubis;
+        for (Bubi bubi in bubis) {
+          if (this.playerId != playerId) return;
+          
+          bubi.x += deltaX;
+          bubi.y += deltaY;
+          
+          break;
+        }
+        
+        arena.redraw();
         
         break;
 
@@ -92,9 +131,12 @@ class Client {
         return;
     }
     
+    if (playerId == null) return;
+    
     var request = {
       'request': 'movement',
-      'keyCode': event.keyCode
+      'keyCode': event.keyCode,
+      'playerId': playerId
     };
     webSocket.send(JSON.encode(request));
   }

@@ -7,24 +7,82 @@ import 'dart:io';
 import 'package:http_server/http_server.dart' as Http;
 import 'package:route/server.dart' show Router;
 import 'package:logging/logging.dart' show Logger, Level, LogRecord;
-import 'game.dart' as Game;
 
 final Logger LOGGER = new Logger('BomberBubi');
+
+var id = 1;
 
 void handleWebSocket(WebSocket socket) {
   LOGGER.info('another new new web-socket connection opened');
 
-  Game.test();
-  
   socket
     .map((string) => JSON.decode(string))
     .listen((json) {
       var request = json['request'];
       switch (request) {
+        case 'login':
+          var request = {
+            'response': 'login',
+            'playerId': id
+          };
+          
+          id++;
+          
+          socket.add(JSON.encode(request));
+          
+          request = {
+            'response': 'newPlayer',
+            'playerId': id,
+            'x': 0,
+            'y': 0
+          };
+          
+          socket.add(JSON.encode(request));
+          
+          break;
+          
         case 'movement':
+          var playerId = json['playerId'];
+
+          var deltaX = 0;
+          var deltaY = 0;
+          
+          var keyCode = json['keyCode'];
+          switch(keyCode){
+            case 37:
+              // left
+              deltaX = -1;
+              
+              break;
+            case 38:
+              // up
+              deltaY = -1;
+              
+              break;
+            case 39:
+              // right
+              deltaX = 1;
+              
+              break;
+            case 40:
+              // down
+              deltaY = 1;
+              
+              break;
+            case 32:
+              // space
+              // TODO: bomb
+              
+              break;
+            default:
+              return;
+          }
+          
           var response = {
-            'response': 'movementResult',
-            'keyCode': json['keyCode']
+            'response': 'movement',
+            'deltaX': deltaX,
+            'deltaY': deltaY,
+            'playerId': playerId
           };
           
           socket.add(JSON.encode(response));
@@ -84,6 +142,14 @@ void main() {
     // needed for the Dartium browser.
     router.serve("/client.dart").listen((request) {
       Uri clientScript = Platform.script.resolve("../web/client.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    router.serve("/arena.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../web/arena.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    router.serve("/bubi.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../web/bubi.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
     
