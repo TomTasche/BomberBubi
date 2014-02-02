@@ -164,7 +164,7 @@ void main() {
       var indexUri = new Uri.file(dir.path).resolve('index.html');
       buildDirectory.serveFile(new File(indexUri.toFilePath()), request);
     };
-
+      
     buildDirectory.errorPageHandler = (HttpRequest request) {
       LOGGER.warning("Resource not found ${request.uri.path}");
       
@@ -182,12 +182,19 @@ void main() {
       Uri clientScript = Platform.script.resolve("../web/client.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
-    router.serve("/arena.dart").listen((request) {
-      Uri clientScript = Platform.script.resolve("../web/arena.dart");
+    
+    router.serve("/arena_canvas.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../web/arena_canvas.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
-    router.serve("/bubi.dart").listen((request) {
-      Uri clientScript = Platform.script.resolve("../web/bubi.dart");
+    
+    router.serve("/lib/bubi.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/bubi.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    
+    router.serve("/lib/arena.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/arena.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
     
