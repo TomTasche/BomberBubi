@@ -66,7 +66,7 @@ class Client {
     if (connectPending) return;
     connectPending = true;
 
-    // TODO: reload page
+    window.location.reload();
   }
 
   void onMessage(data) {
