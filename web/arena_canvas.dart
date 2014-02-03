@@ -7,6 +7,7 @@ class ArenaCanvas extends Arena {
   
   CanvasElement canvas;
   var context;
+  int playerId;
   
   ArenaCanvas() : super() {
     canvas = querySelector('#canvas');
@@ -37,7 +38,12 @@ class ArenaCanvas extends Arena {
     }
     
     for (Bubi bubi in bubis) {
-      var style = 'rgb(0, 255, 0)';
+      var style;
+      if (bubi.id == playerId) {
+        style = 'rgb(0, 255, 0)';
+      } else {
+        style = 'rgb(255, 0, 0)';
+      }
 
       var yDistance = calculatePlayerDistance(bubi.y);
       var xDistance = calculatePlayerDistance(bubi.x);

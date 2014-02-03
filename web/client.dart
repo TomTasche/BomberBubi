@@ -15,8 +15,6 @@ class Client {
   
   int lastKeyCode = 0;
   
-  int playerId;
-  
   ArenaCanvas arena;
 
   Client() {
@@ -74,7 +72,8 @@ class Client {
     var response = json['response'];
     switch (response) {
       case 'login':
-        playerId = json['playerId'];
+        int playerId = json['playerId'];
+        arena.playerId = playerId;
         
         new Timer.periodic(BATTLEFIELD_TICK_RATE, sendLastKeyCode);
 
@@ -112,12 +111,12 @@ class Client {
   
   void sendLastKeyCode(Timer timer) {
     if (lastKeyCode <= 0) return;
-    if (playerId == null) return;
+    if (arena.playerId == null) return;
 
     var request = {
       'request': 'movement',
       'keyCode': lastKeyCode,
-      'playerId': playerId
+      'playerId': arena.playerId
     };
     webSocket.send(JSON.encode(request));
     
@@ -125,7 +124,7 @@ class Client {
   }
   
   void onKeyEvent(KeyboardEvent event) {
-    switch(lastKeyCode){
+    switch(event.keyCode){
       case 37:
         // left
         break;
