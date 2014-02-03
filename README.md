@@ -6,3 +6,5 @@ this code is based on a bomberman-clone in javascript i did 2 years ago when i l
 you can see the latest version of this code running at http://bomberbubi-eu.herokuapp.com/ (hosted in europe)
 
 the old legacy javascript code is still running at http://bomberbubi.herokuapp.com/ (hosted in US)
+
+PS: although this is a BOMBERman-clone, the current gameplay lacks any sort of bombs. oh well...
