@@ -113,7 +113,18 @@ class Client {
   void sendLastKeyCode(Timer timer) {
     if (lastKeyCode <= 0) return;
     if (playerId == null) return;
+
+    var request = {
+      'request': 'movement',
+      'keyCode': lastKeyCode,
+      'playerId': playerId
+    };
+    webSocket.send(JSON.encode(request));
     
+    lastKeyCode = 0;
+  }
+  
+  void onKeyEvent(KeyboardEvent event) {
     switch(lastKeyCode){
       case 37:
         // left
@@ -134,17 +145,6 @@ class Client {
         return;
     }
     
-    var request = {
-      'request': 'movement',
-      'keyCode': lastKeyCode,
-      'playerId': playerId
-    };
-    webSocket.send(JSON.encode(request));
-    
-    lastKeyCode = 0;
-  }
-  
-  void onKeyEvent(KeyboardEvent event) {
     lastKeyCode = event.keyCode;
   }
 }
