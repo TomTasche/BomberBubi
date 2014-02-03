@@ -31,7 +31,7 @@ class Client {
   void connect() {
     connectPending = false;
     
-    webSocket = new WebSocket('ws://${Uri.base.host}:9223/ws');
+    webSocket = new WebSocket('ws://${Uri.base.host}:{Uri.base.port}/ws');
     webSocket.onOpen.first.then((_) {
       onConnected();
       
