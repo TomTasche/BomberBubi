@@ -147,7 +147,9 @@ void main() {
     return;
   }
 
-  int port = 9223;
+  var portEnv = Platform.environment['PORT'];
+  var port = portEnv == null ? 9223 : int.parse(portEnv);
+
   HttpServer.bind(InternetAddress.ANY_IP_V4, port).then((server) {
     LOGGER.info("server is running on "
              "'http://${server.address.address}:$port/'");
