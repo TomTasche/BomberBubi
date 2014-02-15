@@ -33,18 +33,18 @@ void filterSockets() {
   }
 }
 
-void broadcast(var request) {
+void broadcast(String requestJson) {
   filterSockets();
   
   for (WebSocket socket in sockets) {
-    socket.add(JSON.encode(request));
+    socket.add(requestJson);
   }
 }
 
 void broadcastPlayers() {
   for (Thing thing in arena.things) {
     Response response = new Response.newPlayer(thing);
-    broadcast(response);
+    broadcast(response.toJson());
   }
 }
 
@@ -108,7 +108,7 @@ void handleWebSocket(WebSocket socket) {
           thing.y += deltaY;
           
           Response response = new Response.movement(request.thingId, deltaX, deltaY);
-          broadcast(response);
+          broadcast(response.toJson());
           
           break;
       }
