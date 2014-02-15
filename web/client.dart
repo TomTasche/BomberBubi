@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'arena_canvas.dart';
-import '../lib/bubi.dart';
+import '../lib/thing.dart';
+import '../lib/response.dart';
+import '../lib/protocol.dart';
+import '../lib/request.dart';
 
 class Client {
   static const Duration BATTLEFIELD_TICK_RATE = const Duration(milliseconds: 250);
@@ -29,7 +32,8 @@ class Client {
   void connect() {
     connectPending = false;
     
-    webSocket = new WebSocket('ws://${Uri.base.host}:${Uri.base.port}/ws');
+    // webSocket = new WebSocket('ws://${Uri.base.host}:${Uri.base.port}/ws');
+    webSocket = new WebSocket('ws://0.0.0.0:9223/ws');
     webSocket.onOpen.first.then((_) {
       onConnected();
       
@@ -54,10 +58,8 @@ class Client {
       onMessage(e.data);
     });
     
-    var request = {
-      'request': 'login'
-    };
-    webSocket.send(JSON.encode(request));
+    Request request = new Request.login();
+    webSocket.send(request.toJson());
   }
 
   void onDisconnected() {
@@ -68,57 +70,38 @@ class Client {
   }
 
   void onMessage(data) {
-    var json = JSON.decode(data);
-    var response = json['response'];
-    switch (response) {
-      case 'login':
-        int playerId = json['playerId'];
-        arena.playerId = playerId;
+    Response response = new Response.fromJson(data);
+    switch (response.type) {
+      case Protocol.KEY_LOGIN:
+        arena.bubiId = response.thingId;
         
         new Timer.periodic(BATTLEFIELD_TICK_RATE, sendLastKeyCode);
-
+    
         break;
-        
-      case 'newPlayer':
-        var x = json['x'];
-        var y = json['y'];
-        var playerId = json['playerId'];
-        
-        if (arena.getBubiForId(playerId) == null) {
-          arena.addBubi(new Bubi(playerId, x, y));
+      case Protocol.KEY_NEW_PLAYER:
+        if (arena.getThingForId(response.thing.id) == null) {
+          arena.addThing(response.thing);
           arena.redraw();
         }
         
         break;
-      
-      case 'movement':
-        var deltaX = json['deltaX'];
-        var deltaY = json['deltaY'];
-        var playerId = json['playerId'];
-
-        var bubi = arena.getBubiForId(playerId);
-        bubi.x += deltaX;
-        bubi.y += deltaY;
+      case Protocol.KEY_MOVEMENT:
+        Thing thing = arena.getThingForId(response.thingId);
+        thing.x += response.deltaX;
+        thing.y += response.deltaY;
           
         arena.redraw();
         
         break;
-
-      default:
-        print("Invalid response: '$response'");
     }
   }
   
   void sendLastKeyCode(Timer timer) {
     if (lastKeyCode <= 0) return;
-    if (arena.playerId == null) return;
+    if (arena.bubiId == null) return;
 
-    var request = {
-      'request': 'movement',
-      'keyCode': lastKeyCode,
-      'playerId': arena.playerId
-    };
-    webSocket.send(JSON.encode(request));
+    Request request = new Request.movement(arena.bubiId, lastKeyCode);
+    webSocket.send(request.toJson());
     
     lastKeyCode = 0;
   }

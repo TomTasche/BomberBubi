@@ -6,8 +6,11 @@ import 'package:http_server/http_server.dart' as Http;
 import 'package:route/server.dart' show Router;
 import 'package:logging/logging.dart' show Logger, Level, LogRecord;
 
-import '../lib/bubi.dart';
+import '../lib/thing.dart';
 import '../lib/arena.dart';
+import '../lib/protocol.dart';
+import '../lib/request.dart';
+import '../lib/response.dart';
 
 final Logger LOGGER = new Logger('BomberBubi');
 
@@ -18,31 +21,30 @@ List<WebSocket> sockets = new List<WebSocket>();
 Arena arena = new Arena();
 
 void filterSockets() {
+  List<WebSocket> closedSockets = new List<WebSocket>();
   for (WebSocket socket in sockets) {
     if (socket.readyState != WebSocket.OPEN) {
-      sockets.remove(socket);
+      closedSockets.add(socket);
     }
+  }
+  
+  for (WebSocket closedSocket in closedSockets) {
+    sockets.remove(closedSocket);
   }
 }
 
-void broadcast(var request) {
-  // filterSockets();
+void broadcast(String requestJson) {
+  filterSockets();
   
   for (WebSocket socket in sockets) {
-    socket.add(JSON.encode(request));
+    socket.add(requestJson);
   }
 }
 
 void broadcastPlayers() {
-  for (Bubi bubi in arena.bubis) {
-    var request = {
-      'response': 'newPlayer',
-      'playerId': bubi.id,
-      'x': bubi.x,
-      'y': bubi.y
-    };
-    
-    broadcast(request);
+  for (Thing thing in arena.things) {
+    Response response = new Response.newPlayer(thing);
+    broadcast(response.toJson());
   }
 }
 
@@ -52,35 +54,26 @@ void handleWebSocket(WebSocket socket) {
   sockets.add(socket);
 
   socket
-    .map((string) => JSON.decode(string))
-    .listen((json) {
-      var request = json['request'];
-      switch (request) {
-        case 'login':
-          Bubi bubi = new Bubi(id, 0, 0);
-          arena.addBubi(bubi);
+    .listen((jsonString) {
+      Request request = new Request.fromJson(jsonString);
+      switch (request.type) {
+        case Protocol.KEY_LOGIN:
+          Thing newThing = new Thing.bubi(id, 0, 0);
+          arena.addThing(newThing);
           
           id++;
           
-          var request = {
-            'response': 'login',
-            'playerId': bubi.id
-          };
-          
-          socket.add(JSON.encode(request));
+          Response response = new Response.login(newThing.id);
+          socket.add(response.toJson());
 
           broadcastPlayers();
           
           break;
+        case Protocol.KEY_MOVEMENT:
+          int deltaX = 0;
+          int deltaY = 0;
           
-        case 'movement':
-          var playerId = json['playerId'];
-
-          var deltaX = 0;
-          var deltaY = 0;
-          
-          var keyCode = json['keyCode'];
-          switch(keyCode){
+          switch(request.keyCode){
             case 37:
               // left
               deltaX = -1;
@@ -110,26 +103,17 @@ void handleWebSocket(WebSocket socket) {
               return;
           }
           
-          var response = {
-            'response': 'movement',
-            'deltaX': deltaX,
-            'deltaY': deltaY,
-            'playerId': playerId
-          };
+          Thing thing = arena.getThingForId(request.thingId);
+          thing.x += deltaX;
+          thing.y += deltaY;
           
-          Bubi bubi = arena.getBubiForId(playerId);
-          bubi.x += deltaX;
-          bubi.y += deltaY;
-          
-          broadcast(response);
+          Response response = new Response.movement(request.thingId, deltaX, deltaY);
+          broadcast(response.toJson());
           
           break;
-
-        default:
-          LOGGER.warning("Invalid request '$request'.");
       }
     }, onError: (error) {
-      LOGGER.warning('Bad WebSocket request');
+      LOGGER.warning('bad WebSocket request');
       
       sockets.remove(socket);
     });
@@ -162,10 +146,10 @@ void main() {
     var buildDirectory = new Http.VirtualDirectory(buildPath);
     buildDirectory.jailRoot = false;
     buildDirectory.allowDirectoryListing = true;
-    buildDirectory.directoryHandler = (dir, request) {
+    /*buildDirectory.directoryHandler = (dir, request) {
       var indexUri = new Uri.file(dir.path).resolve('index.html');
       buildDirectory.serveFile(new File(indexUri.toFilePath()), request);
-    };
+    };*/
       
     buildDirectory.errorPageHandler = (HttpRequest request) {
       LOGGER.warning("Resource not found ${request.uri.path}");
@@ -190,13 +174,28 @@ void main() {
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
     
-    router.serve("/lib/bubi.dart").listen((request) {
-      Uri clientScript = Platform.script.resolve("../lib/bubi.dart");
+    router.serve("/lib/thing.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/thing.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
     
     router.serve("/lib/arena.dart").listen((request) {
       Uri clientScript = Platform.script.resolve("../lib/arena.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    
+    router.serve("/lib/request.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/request.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    
+    router.serve("/lib/response.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/response.dart");
+      buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
+    });
+    
+    router.serve("/lib/protocol.dart").listen((request) {
+      Uri clientScript = Platform.script.resolve("../lib/protocol.dart");
       buildDirectory.serveFile(new File(clientScript.toFilePath()), request);
     });
     

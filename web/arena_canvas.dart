@@ -1,13 +1,13 @@
 import 'dart:html';
 
 import '../lib/arena.dart';
-import '../lib/bubi.dart';
+import '../lib/thing.dart';
 
 class ArenaCanvas extends Arena {
   
   CanvasElement canvas;
   var context;
-  int playerId;
+  int bubiId;
   
   ArenaCanvas() : super() {
     canvas = querySelector('#canvas');
@@ -37,16 +37,16 @@ class ArenaCanvas extends Arena {
       context.lineTo(length, distance);
     }
     
-    for (Bubi bubi in bubis) {
+    for (Thing thing in things) {
       var style;
-      if (bubi.id == playerId) {
+      if (thing.id == bubiId) {
         style = 'rgb(0, 255, 0)';
       } else {
         style = 'rgb(255, 0, 0)';
       }
 
-      var yDistance = calculatePlayerDistance(bubi.y);
-      var xDistance = calculatePlayerDistance(bubi.x);
+      var yDistance = calculatePlayerDistance(thing.y);
+      var xDistance = calculatePlayerDistance(thing.x);
   
       context.fillStyle = style;
       context.fillRect(xDistance, yDistance, 50, 50);

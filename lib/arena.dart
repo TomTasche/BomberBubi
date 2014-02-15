@@ -1,23 +1,23 @@
-import 'bubi.dart';
+import 'thing.dart';
 
 class Arena {
   
   var size;
   
-  List<Bubi> bubis = new List<Bubi>();
+  List<Thing> things = new List<Thing>();
   
   Arena() {
     size = 10;
   }
   
-  void addBubi(Bubi newBub) {
-    bubis.add(newBub);
+  void addThing(Thing newThing) {
+    things.add(newThing);
   }
   
-  Bubi getBubiForId(int id) {
-    for (Bubi bubi in bubis) {
-      if (bubi.id == id) {
-        return bubi;
+  Thing getThingForId(int id) {
+    for (Thing thing in things) {
+      if (thing.id == id) {
+        return thing;
       }
     }
     
