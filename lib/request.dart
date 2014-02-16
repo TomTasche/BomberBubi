@@ -21,7 +21,7 @@ class Request {
     switch (this.type) {
       case Protocol.KEY_LOGIN:
         break;
-      case Protocol.KEY_MOVEMENT:
+      case Protocol.KEY_MOVE_THING:
         this.thingId = json[Protocol.KEY_THING_ID];
 
         this.keyCode = json[Protocol.KEY_KEYCODE];
@@ -38,7 +38,7 @@ class Request {
   }
   
   Request.movement(int thingId, int keyCode) {
-    this.type = Protocol.KEY_MOVEMENT;
+    this.type = Protocol.KEY_MOVE_THING;
     this.thingId = thingId;
     this.keyCode = keyCode;
   }

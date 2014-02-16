@@ -78,19 +78,28 @@ class Client {
         new Timer.periodic(BATTLEFIELD_TICK_RATE, sendLastKeyCode);
     
         break;
-      case Protocol.KEY_NEW_PLAYER:
+      case Protocol.KEY_ADD_THING:
         if (arena.getThingForId(response.thing.id) == null) {
           arena.addThing(response.thing);
           arena.redraw();
         }
         
         break;
-      case Protocol.KEY_MOVEMENT:
+      case Protocol.KEY_MOVE_THING:
         Thing thing = arena.getThingForId(response.thingId);
         thing.x += response.deltaX;
         thing.y += response.deltaY;
-          
+        
         arena.redraw();
+        
+        break;
+      case Protocol.KEY_REMOVE_THING:
+        if (arena.getThingForId(response.thing.id) != null) {
+          arena.removeThing(response.thing);
+          arena.redraw();
+        } else {
+          throw new StateError("server wants to remove unknown thing: " + response.thing.toJson());
+        }
         
         break;
     }

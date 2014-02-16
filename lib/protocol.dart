@@ -4,10 +4,11 @@ class Protocol {
   static const String KEY_RESPONSE = "response";
 
   // type
-  static const String KEY_MOVEMENT = "movement";
   static const String KEY_LOGIN = "login";
-  static const String KEY_NEW_PLAYER = "new_player";
-  
+  static const String KEY_ADD_THING = "add_thing";
+  static const String KEY_MOVE_THING = "move_thing";
+  static const String KEY_REMOVE_THING = "remove_thing";
+
   // extras
   static const String KEY_THING = "thing";
   static const String KEY_THING_ID = "thing_id";

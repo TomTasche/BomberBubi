@@ -14,6 +14,10 @@ class Arena {
     things.add(newThing);
   }
   
+  void removeThing(Thing newThing) {
+    things.remove(newThing);
+  }
+  
   Thing getThingForId(int id) {
     for (Thing thing in things) {
       if (thing.id == id) {
